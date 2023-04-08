@@ -1,2 +1,6 @@
-# even-simpler-peer-glitch
-glitch implementation for even-simpler-peer server
+even-simpler-peer 
+---
+
+a browser to browser webrtc link (data messages only)
+
+
