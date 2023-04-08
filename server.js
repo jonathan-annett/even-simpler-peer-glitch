@@ -34,7 +34,8 @@ app.use(express.static('static'));
  
 var routes = require("./routes.js")(app);
 
- 
+console.log ("confirming that edit on github via vs code has worked...");
+
 var server = app.listen(3000, function () {
   console.log("Listening on port %s", server.address().port);
 });
