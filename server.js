@@ -34,7 +34,9 @@ app.use(express.static('static'));
  
 var routes = require("./routes.js")(app);
 
-console.log ("confirming that edit on github via vs code has worked...");
+process.github_rev = require('child_process').execSync('git rev-parse HEAD').toString().trim();
+
+console.log ("Github revision hash: "+process.github_rev);
 
 var server = app.listen(3000, function () {
   console.log("Listening on port %s", server.address().port);
