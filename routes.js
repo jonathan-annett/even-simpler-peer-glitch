@@ -19,6 +19,10 @@ var routes = function (app) {
     res.send({ info: "This is a rest api. Thanks for looking though!" });
   });
   
+  app.get("/version", function (req, res) {
+    res.send({ server: process.github_rev });
+  });
+  
   
   app.get ("/api",function(req,res){
       res.sendFile(__dirname + "/static/even-simpler-api.html");
