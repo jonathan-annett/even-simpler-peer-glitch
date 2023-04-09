@@ -91,9 +91,19 @@ SOFTWARE.
     <input id="in1" type="text"><button id="test1">test</button>
     <input id="in2" type="text"><button id="test2">test</button>
 
+
+
+    <h1>streamdeck approack app to browser via clipboard in temp window</h1>
+    <h2>combined pseudocode showing logic flow</h2>
     <pre>
 
-      plugin                          prop insp                     browser
+      because the plugin instance does not have access to a ui (or clipboard), we can't use
+      the clipboard approach directly instead we need to open a temporary webrtc connection using 
+      the streamdeck property inspector, in order to use it to exchange offer/answer info with the
+      isolated plugin instance, which is persistent. (the property inspector is disposed of when closed)
+
+
+      plugin                          prop insp                     browser app
       
                                                                     
                                                                     peer1 ? 
@@ -159,8 +169,100 @@ SOFTWARE.
                                                                     peer3.onData()==>emit("data")
                                                                     wait until peer3.onClose()
                                                                     peer3.destroy()
+</pre>
 
-    </pre>
+<h2>
+  pseudocode for plugin:
+</h2>
+<pre>
+
+  wait until $sd.onSendToPlugin()
+  offer2=$sd.onSendToPlugin()
+  peer4 ?
+     ...peer4.destroy()
+  peer4()=new (notrickle) 
+  peer4.signal(offer2)
+  wait until peer4.onSignal()
+  answer2=peer4.onSignal()
+  $sd.sendToPI(answer2)         
+  
+  $sd.onSendToPlugin()=="connected"?
+     emit("connected")
+     
+  peer4.onData()==>emit("data")
+  wait until peer4.onClose()
+  peer4.destroy()
+
+</pre>
+
+<h2>pseudocode for property inspector</h2>
+<pre>
+
+  wait until click()
+  offer1 = clip.read()
+  peer2 ? 
+    ... peer2.destroy()
+
+  peer2 = new (notrickle) 
+  peer2.signal(offer1)
+  wait until peer2.onSignal()
+  answer1 = peer2.onSignal()
+  clip.write(answer1)
+    ( if fail: 
+      wait until click(), 
+      retry)
+
+
+  wait until onConnect()
+  wait until onData() 
+  offer2=peer2.onData()
+  $pi.sendToPlugin(offer2)
+
+  wait until $pi.onSendToPI()
+  answer2=$pi.onSendToPI()
+  peer2.send(answer2)
+
+  wait until peer2.onClose()
+  $pi.sendToPlugin("connected")
+  peer2.destroy()
+
+                                  
+</pre>
+
+
+<h2>pseudocode for browser app</h2>
+<pre>
+                                                                
+  peer1 ? 
+    ... peer1.destroy()
+  peer1 = new(init,notrickle)
+  wait until peer1.onSignal()
+  offer1 = peer1.onSignal()
+  wait until click()
+  clip.write(offer1)
+
+  
+  wait until click()
+  answer1=clip.read()
+  peer1.signal(answer1)
+  wait until onConnect()
+  peer3=new(init,notrickle)
+  offer2=peer3.onSignal()
+  peer1.send(offer2)
+
+
+  wait until peer2.onData()
+  answer2 = peer2.onData()
+  peer3.signal(answer2)
+  wait until peer3.onConnect()
+  peer1.destroy()
+
+  peer3.onData()==>emit("data")
+  wait until peer3.onClose()
+  peer3.destroy()
+</pre>
+
+
     <script>
           const inputs = document.querySelectorAll("input");
           const buttons = document.querySelectorAll("button");
@@ -799,12 +901,134 @@ SOFTWARE.
         }
       
 
-        /*
-        
-        
-        
-        
-        */
+        function pluginPeer(sdApi) {
+          /*
+            pcode....
+
+            wait until $sd.onSendToPlugin()
+            offer2=$sd.onSendToPlugin()
+            peer4 ?
+              ...peer4.destroy()
+            peer4()=new (notrickle) 
+            peer4.signal(offer2)
+            wait until peer4.onSignal()
+            answer2=peer4.onSignal()
+            $sd.sendToPI(answer2)         
+            
+            $sd.onSendToPlugin()=="connected"?
+              emit("connected")
+              
+            peer4.onData()==>emit("data")
+            wait until peer4.onClose()
+            peer4.destroy()
+          */
+
+          let peer;
+          let events = {
+             data : [],
+             connected : [],
+             close : []
+          };
+
+          sdApi.onSendToPlugin(function(params){
+            const { payload } = params;
+            const { offer,connected } = payload || {};
+
+            if (offer) {
+                if (peer) peer.destroy();
+                peer = new SimplePeer ({              
+                    initiator: false,
+                    trickle: false,
+                    objectMode: false
+                }); 
+                peer.signal(offer);
+                peer.onSignal(function(answer){
+
+                });
+                peer.on('data',function(data){
+                    events.data.forEach(function(fn){
+                      fn(data);
+                    });
+                });
+                peer.on('close',function(data){
+                    events.close.forEach(function(fn){
+                      fn();
+                    });
+                    if (peer) {
+                      peer.destroy();
+                    }
+                    events.close.splice(0,events.close.length);
+                    events.data.splice(0,events.data.length);
+                    events.connected.splice(0,events.connected.length);
+                });
+            }
+
+            if (connected) {
+
+              events.connected.forEach(function(fn){
+                  fn();
+              });
+            }
+              
+          });
+
+          return {
+              on  : peerAddListener,
+              off : peerRemoveListener,
+
+              send : peerSend,
+              close : peerClose
+
+          }
+
+          function peerSend(data) {
+            if (peer) {
+               peer.send(data);
+            }
+          }
+
+          function peerClose () {
+             if (peer) {
+               peer.destroy();
+               peer=undefined;
+             }
+          }
+
+          function peerAddListener(e,fn) {
+            if (typeof e+typeof fn==='stringfunction') {
+              const stack = events[e];
+              if (stack) {
+                 const ix = stack.indexOf(fn);
+                 if (ix<0) {
+                   stack.push(fn);
+                 }
+              }
+            }
+          }
+
+          function peerRemoveListener(e,fn) {
+            if (typeof e+typeof fn==='stringfunction') {
+              const stack = events[e];
+              if (stack) {
+                 const ix = stack.indexOf(fn);
+                 if (ix>=0) {
+                   stack.slice(fn,1);
+                 }
+              }
+            }
+          }
+        } 
+
+
+        function propertyInspectorPeer(button,piApi) {
+
+        }
+
+        function browserAppPeer(button) {
+
+        }
+
+
       
     </script>
   </body>
