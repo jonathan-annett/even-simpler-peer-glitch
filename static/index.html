@@ -141,7 +141,7 @@ SOFTWARE.
             finalPeerOffer=offer;
           });
 
-          comms.onAnswer(finalPeer.signal);
+          comms.onAnswer(function(ans){return finalPeer.signal(ans);});
           
           return finalPeer;
           
@@ -278,7 +278,7 @@ SOFTWARE.
           });
 
 
-          comms.onOffer(finalPeer.signal);
+          comms.onOffer(function(o){ return finalPeer.signal(o);});
           finalPeer.on('signal',comms.sendAnswer);
 
           return finalPeer;
