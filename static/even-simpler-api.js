@@ -117,9 +117,27 @@ scan_btn.onclick = function(){
 }
 
 custom_btn.onclick = function () {
-  if (custom_btn.style.display === "inline-block") {
+  sessionStorage.clear();
+  let new_peer_id = cleanupId(inventId());
+  sessionStorage.clear();
+  own_id=inventId();
+  own_id_clean = cleanupId(own_id);
+  show_own_id.innerHTML = formatId(own_id);
 
-  }
+  // make a random id to paste into custom app
+  let customId = (randomId()+randomId()).replace(/\-/g,'');
+
+  savePeerId(new_peer_id);
+  let cliptext = custom_btn.value.replace(/\s/g,'')+':'+customId;
+  navigator.clipboard.writeText(cliptext);
+  enter_peer_id.value = formatId(new_peer_id); 
+  setTimeout(peer_id_changed, 500);
+  logview.innerHTML="";
+  log(   'the custom id is : '+customId+'\n\n'+
+         'it has been copied to the clipboard.\n\n'
+  );
+  
+  customConnect(customId);
 }
 
 
@@ -407,6 +425,109 @@ function connectToPeer() {
   }
 }
 
+function customConnect(custom_id) {
+
+  enter_peer_id.style.disabled = true;
+
+  const signal_id_in  = customId + '-signal-initiator';
+  const signal_id_out = customId + '-signal-answer';
+
+    delete peer._signal_data;
+
+    let errored = false;
+    peer = null;
+    peerConfig.initiator = false;
+    peer = new SimplePeer(peerConfig);
+
+    log("calling getPeerSignal()", signal_id_in);
+
+    getPeerSignal();
+
+    peer.on("error", function (err) {
+      log("error", err);
+    });
+
+    peer.on("signal", function (data) {
+
+      goPostal(
+        baseurl,
+        { 
+           set: { 
+             id: signal_id_out, 
+             data: data 
+          } 
+        },
+        function (err, res) {
+          if (err) {
+            log(err);
+          } else {
+            log("sent reply signal");
+          }
+        }
+      );
+    });
+
+    peer.on("connect", function(){
+       
+        peer.on("data", function (json_data) {
+    const data = JSON.parse(String(json_data));
+    
+    if (framed) {
+      if (data.message) {
+          window.parent.postMessage({message:data.message},target_origin);
+      }
+    } else {
+      log("got data", json_data);      
+    }
+
+
+    if (data && data.ping) {
+      pings++;
+      ping_count.innerHTML = pings.toString() + " pings received";
+      return sendToPeer({ pingReply: data.ping });
+    }
+
+    if (data && data.pingReply) {
+      ping_time.innerHTML =
+        (Date.now() - data.pingReply.now).toString() + " round trip msec";
+      return;
+    }
+    
+
+  });
+
+  peer.on("close", function () {
+    
+    if (framed) {
+      window.parent.postMessage({disconnected:{connect_id,peer_id}},target_origin);
+    } else {
+      log("closed");
+    }
+    location.reload();
+  });
+
+    });
+
+    function getPeerSignal() {
+      
+      goPostal(baseurl, { get: signal_id_in }, function (err, signalData) {
+        if (!err && signalData) {
+          log("got peer signal...");
+          return peer.signal(signalData);
+        }
+        if (err) console.log(err);
+        if (retries++ < 200) {
+          log("getPeerSignal() attempt #", retries, signal_id_in);
+          return setTimeout(getPeerSignal, 1);
+        }
+      });
+      
+    }
+    
+
+
+}
+
 function onPeerConnect(connect_id, peer_id) {
   
   if (framed) {
@@ -535,19 +656,25 @@ function waitForPeer(peer_id, cb) {
   
 }
 
-function inventId() {
-  let prior = sessionStorage.getItem("numeric-id");
-  if (prior && validateId(prior)) {
-    return prior;
-  }
-
+function randomId() {
   const R = function (n) {
     n = n || 3;
     let r = Math.floor(Math.random() * 1000000);
     return ("0000" + r.toString()).slice(0 - n);
   };
 
-  let id = `${R(3)}-${R(4)}-${R(4)}`;
+  return `${R(3)}-${R(4)}-${R(4)}`;
+
+
+}
+
+function inventId() {
+  let prior = sessionStorage.getItem("numeric-id");
+  if (prior && validateId(prior)) {
+    return prior;
+  }
+
+  let id = randomId();
 
   let result = id + checkDigit(id);
 
