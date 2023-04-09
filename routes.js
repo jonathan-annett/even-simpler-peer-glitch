@@ -23,6 +23,9 @@ var routes = function (app) {
     res.send({ server: process.github_rev });
   });
   
+  app.get("/debug", function (req, res) {
+    res.send({ numkeys });
+  });
   
   app.get ("/api",function(req,res){
       res.sendFile(__dirname + "/static/even-simpler-api.html");

@@ -25,6 +25,8 @@ SOFTWARE.
 
 */
 
+const o2j = JSON.stringify.bind(JSON), j2o = JSON.parse.bind(JSON);
+
 const baseurl = location.origin.replace(/\/$/, "") + "/api";
 let own_id = inventId(), own_id_clean = cleanupId(own_id);
 const enter_peer_id = document.querySelector("#enter_peer_id");
@@ -212,7 +214,7 @@ function onFrameMessage(event) {
 
   if (event.data.send) {
     sendToPeer({ message: event.data.send });
-    return log(JSON.stringify(event.data.send));
+    return log(o2j(event.data.send));
     // note: if a message includes the send command, we exit after sending
     // it's not possible to also set the peer_id or own_id in the same 
     // message, and it's unlikely you'd ever want to.
@@ -308,7 +310,7 @@ function peer_id_changed(ev) {
 }
 
 function sendToPeer(data) {
-  peer.send(JSON.stringify(data));
+  peer.send(o2j(data));
 }
 function savePeerId(peer_id) {
   sessionStorage.setItem("peer-id", peer_id);
@@ -434,17 +436,16 @@ function customConnect(customId) {
   // kill any connecting instances
   Object.keys( customConnectTimeouts).forEach(function(instance){
     clearTimeout(customConnectTimeouts [instance]);
-    delete customConnectTimeouts [instance];
+    delete customConnectTimeouts [ instance ];
   });
 
   let retries = 0;
 
   let instance = Date.now(36).toString+Math.random().toString(36);
   
-
   enter_peer_id.style.disabled = true;
 
-  const signal_id_in = customId + '-signal-initiator';
+  const signal_id_in  = customId + '-signal-initiator';
   const signal_id_out = customId + '-signal-answer';
 
   delete peer._signal_data;
@@ -476,7 +477,7 @@ function customConnect(customId) {
         if (err) {
           log(err);
         } else {
-          log("sent reply signal",signal_id_out,"===>",data);
+          log("sent reply signal",signal_id_out,"===>",o2j( data ) );
         }
       }
     );
@@ -485,7 +486,7 @@ function customConnect(customId) {
   peer.on("connect", function () {
 
     peer.on("data", function (json_data) {
-      const data = JSON.parse(String(json_data));
+      const data = j2o(String(json_data));
 
       if (framed) {
         if (data.message) {
@@ -576,7 +577,7 @@ function onPeerConnect(connect_id, peer_id) {
   connections.appendChild(conn_div);
 
   peer.on("data", function (json_data) {
-    const data = JSON.parse(String(json_data));
+    const data = j2o(String(json_data));
 
     if (framed) {
       if (data.message) {
@@ -741,7 +742,7 @@ function validateId(id) {
 
 function goPostal(url, data, cb) {
   var http = new XMLHttpRequest();
-  var json = JSON.stringify(data);
+  var json = o2j(data);
   http.open("POST", url, true);
 
   //Send the proper header information along with the request
@@ -751,7 +752,7 @@ function goPostal(url, data, cb) {
     //Call a function when the state changes.
     if (http.readyState == 4 && http.status == 200) {
       try {
-        cb(null, JSON.parse(http.responseText));
+        cb(null, j2o(http.responseText));
       } catch (e) {
         cb(e);
       }
