@@ -118,20 +118,20 @@ scan_btn.onclick = function(){
 
 custom_btn.onclick = function () {
   sessionStorage.clear();
-  let new_peer_id = cleanupId(inventId());
-  sessionStorage.clear();
-  own_id=inventId();
+  own_id='';
   own_id_clean = cleanupId(own_id);
   show_own_id.innerHTML = formatId(own_id);
+
+  connect_info.style.display="none";
 
   // make a random id to paste into custom app
   let customId = (randomId()+randomId()).replace(/\-/g,'');
 
-  savePeerId(new_peer_id);
+  savePeerId('');
   let cliptext = custom_btn.value.replace(/\s/g,'')+':'+customId;
   navigator.clipboard.writeText(cliptext);
-  enter_peer_id.value = formatId(new_peer_id); 
-  setTimeout(peer_id_changed, 500);
+
+  enter_peer_id.value = ''; 
   logview.innerHTML="";
   log(   'the custom id is : '+customId+'\n\n'+
          'it has been copied to the clipboard.\n\n'

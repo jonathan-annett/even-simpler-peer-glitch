@@ -24,46 +24,49 @@ SOFTWARE.
 
 
 -->
-  <head>
-    <script src="simplepeer.min.js"></script>
-    <script src="qrcode.min.js"></script>   
-  </head>
 
-  <body>
-    
-    <h3>webrtc browser link <button id="reset_btn">manual</button> 
-                            <button id="copy_btn">get link</button> 
-                            <button id="qr_btn">QR Code</button> 
-                            <button id="custom_btn" style="display:none">Custom</button> 
-                            <button id="scan_btn">Scan</button></h3>
-    <div>
-     
-    <div>
-      <p>this browser's address</p>
-      <h2 id="show_own_id"></h2>
-    </div>
-      
-    </div>
+<head>
+  <script src="simplepeer.min.js"></script>
+  <script src="qrcode.min.js"></script>
+</head>
+
+<body>
+
+  <h3>webrtc browser link <button id="reset_btn">manual</button>
+    <button id="copy_btn">get link</button>
+    <button id="qr_btn">QR Code</button>
+    <button id="custom_btn" style="display:none">Custom</button>
+    <button id="scan_btn">Scan</button>
+  </h3>
+  <div>
 
     <div id="connect_info">
-      
-    <div>
+
+      <div>
+        <p>this browser's address</p>
+        <h2 id="show_own_id"></h2>
+      </div>
+
+
       <p>the other browser's address</p>
-      <input type="tel" id="enter_peer_id" /> 
+      <input type="tel" id="enter_peer_id" />
     </div>
 
-    </div>
-    
-    <div id="connections">
-      
-    </div>
-    
-    
-    <div id="qrcode" style="background-color:white;display:none;position:absolute;left:8px;top:0px;right:0;bottom:0;z-index:10000;"></div>
+  </div>
 
-    <pre id="log"></pre>
+  <div id="connections">
 
-    <script src="even-simpler-api.js"></script>
-    
-  </body>
+  </div>
+
+
+  <div id="qrcode"
+    style="background-color:white;display:none;position:absolute;left:8px;top:0px;right:0;bottom:0;z-index:10000;">
+  </div>
+
+  <pre id="log"></pre>
+
+  <script src="even-simpler-api.js"></script>
+
+</body>
+
 </html>
