@@ -110,7 +110,7 @@ var routes = function (app) {
     
     keys = Object.keys(numkeys);
     
-    console.log("keys active @ ",new Date(), keys);
+    //console.log("keys active @ ",new Date(), keys);
     
     numKeyCleanup.timeout = setTimeout(numKeyCleanup,60000);
     
