@@ -411,6 +411,7 @@ function connectToPeer() {
   }
 
   function getPeerSignal() {
+
     goPostal(baseurl, { get: signal_id_in }, function (err, signalData) {
       if (!err && signalData) {
         log("got peer signal...");
@@ -426,6 +427,7 @@ function connectToPeer() {
 }
 
 function customConnect(customId) {
+  let retries = 0;
 
   enter_peer_id.style.disabled = true;
 
@@ -509,7 +511,6 @@ function customConnect(customId) {
     });
 
     function getPeerSignal() {
-      
       goPostal(baseurl, { get: signal_id_in }, function (err, signalData) {
         if (!err && signalData) {
           log("got peer signal...");
