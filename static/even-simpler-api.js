@@ -476,7 +476,7 @@ function customConnect(customId) {
         if (err) {
           log(err);
         } else {
-          log("sent reply signal");
+          log("sent reply signal",signal_id_out,"===>",data);
         }
       }
     );
