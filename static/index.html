@@ -47,12 +47,47 @@ SOFTWARE.
     </button>
     </div>
     
-    <input id="in1" type="text">
-    <input id="in2" type="text">
+    <input id="in1" type="text"><button id="test1">test</button>
+    <input id="in2" type="text"><button id="test2">test</button>
     <script>
           const inputs = document.querySelectorAll("input");
+          const buttons = document.querySelectorAll("button");
+
+
+          const comms = {
+            db : {},
+            fn : {},
+            sendOffer  : function(offer){
+              if (dummy.fn.offer) {
+                dummy.fn.offer(offer);
+              } else {
+                dummy.db.offer=offer;
+              }
+            },
+            onAnswer   : function(fn){
+                if (dummy.db.answer) {
+                  fn(dummy.db.answer);
+                  delete dummy.db.answer;
+                }
+                dummy.fn.answer=fn;
+            },
+            onOffer    : function(fn){
+              if (dummy.db.offer) {
+                  fn(dummy.db.offer);
+                  delete dummy.db.offer;
+                }
+                dummy.fn.offer=fn;
+            },
+            sendAnswer : function(answer){
+              if (dummy.fn.answer) {
+                dummy.fn.offer(answer);
+              } else {
+                dummy.db.answer=answer;
+              }
+            }
+          };
         
-          const peer = offerPeer(document.querySelector("#button1"));
+          const peer = offerPeer(document.querySelector("#button1"),comms);
       
           peer.on('connect',function(){
             alert('yay. peer1 connected');
@@ -61,8 +96,18 @@ SOFTWARE.
           peer.on('close',function(){
             alert('boo. peer1 disconnected');
           });
-      
-          const peer2 = answerPeer(document.querySelector("#button2"));
+
+          peer.on('data',function(data){
+            inputs[0].value=data.toString();
+          });
+          
+          buttons[2].onclick(function(){
+             peer.send(
+              "test Message" +Math.random().toString()
+             );
+          });
+
+          const peer2 = answerPeer(document.querySelector("#button2"),comms);
       
           peer2.on('connect',function(){
             alert('yay. peer2 connected');
@@ -71,18 +116,34 @@ SOFTWARE.
             alert('boo. peer2 disconnected');
           });
       
-        
-      
+          peer2.on('data',function(data){
+            inputs[1].value=data.toString();
+          });
+
+          buttons[3].onclick(function(){
+             peer2.send(
+              "test Message" +Math.random().toString()
+             );
+          });
    
-        function offerPeer(button) {
-          let peer_on,peer = boot(),
+        function offerPeer(button,comms) {
+
+          let peer = boot(),
+              backup;
           
-              backup,
-              wrapped_connect,
-              wrapped_close ;
+          let finalPeer =  new SimplePeer ({
+                initiator: true,
+                trickle: false,
+                objectMode: false,
+          });
+          let finalPeerOffer;
+          finalPeer.on('signal',function(offer){
+            sendOffer=offer;
+          });
+
+          comms.onAnswer(finalPeer.signal);
           
-          
-          return peer;
+          return finalPeer;
           
           function boot() {
             
@@ -100,12 +161,8 @@ SOFTWARE.
             });
 
             peer.on('connect',onConnectEvent);
-            peer.on('close',onCloseEvent);
-            peer_on = peer.on.bind(peer),
-              
-            delete peer.on;
-            peer.on = onEvent;
-            
+            //peer.on('close',onCloseEvent);
+
             return peer;
           }
           
@@ -114,10 +171,14 @@ SOFTWARE.
              button.innerHTML = button.value;
              button.addEventListener('click',clickEvent3);  
              button.disabled=false;
-               
-            
-             if (typeof wrapped_connect==='function') {
-                wrapped_connect();
+
+             trySendOffer();
+
+             function trySendOffer(){
+                if (finalPeerOffer) {
+                  return comms.sendOffer(finalPeerOffer);
+                }
+                setTimeout(trySendOffer,1000);
              }
           }
           
@@ -132,26 +193,9 @@ SOFTWARE.
             peer.destroy();
             
             peer = boot();
-               
-            
-            if (typeof wrapped_close==='function') {
-                wrapped_close();
-            }
             
           }
-          
-          function onEvent(e,fn) {
-             if (e==='connect') {
-               wrapped_connect = fn;
-             } else {
-               if (e==='close') {
-                 wrapped_close = fn;
-               } else {
-                 return peer_on(e,fn);
-               }
-             }
-          }
-          
+
           function clickEvent1(ev){
             
             if (peer.signalJSON) {
@@ -216,21 +260,28 @@ SOFTWARE.
           }
         
           function clickEvent3 () {
-            peer.destroy();
+            //peer.destroy();
           }
                 
         }  
       
-        function answerPeer(button) {
+        function answerPeer(button,comms) {
           
-          let peer_on,peer = boot(),
-          
-              backup,
-              wrapped_connect,
-              wrapped_close ;
+          let peer = boot(),
+              backup;
           
           
-          return peer;
+          let finalPeer =  new SimplePeer ({
+                initiator: false,
+                trickle: false,
+                objectMode: false,
+          });
+
+
+          comms.onOffer(finalPeer.signal);
+          finalPeer.on('signal',comms.sendAnswer);
+
+          return finalPeer;
           
           function boot() {
             
@@ -246,32 +297,16 @@ SOFTWARE.
             button.innerHTML = button.value;
                
             peer.on('connect',onConnectEvent);
-            peer.on('close',onCloseEvent);
-            peer_on = peer.on.bind(peer),
-              
-            delete peer.on;
-            peer.on = onEvent;
-            
+            //peer.on('close',onCloseEvent);
             return peer;
           }
           
-          
-          
-          delete peer.on;
-          peer.on = onEvent;
-          
-          return peer;
           
           function onConnectEvent() {
              button.value = "disconnect";
              button.innerHTML = button.value;
              button.addEventListener('click',clickEvent3);     
              button.disabled=false;
-              
-            
-             if (typeof wrapped_connect==='function') {
-                wrapped_connect();
-             }
           }
           
           function onCloseEvent(){
@@ -282,15 +317,9 @@ SOFTWARE.
             button.removeEventListener('click',clickEvent2);  
             button.removeEventListener('click',clickEvent3);  
             
-            peer.destroy();
-            
-            peer = boot();
-               
-            
-            if (typeof wrapped_close==='function') {
-                wrapped_close();
-            }
-            
+            peer.destroy();            
+            peer = boot();     
+
           }
           
           function onEvent(e,fn) {
@@ -358,11 +387,18 @@ SOFTWARE.
           
           
           function clickEvent3 () {
-             peer.destroy();
+             //peer.destroy();
           }
           
         }
       
+
+        /*
+        
+        
+        
+        
+        */
       
     </script>
   </body>
