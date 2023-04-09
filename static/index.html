@@ -101,11 +101,11 @@ SOFTWARE.
             inputs[0].value=data.toString();
           });
           
-          buttons[2].onclick(function(){
+          buttons[2].onclick=function(){
              peer.send(
               "test Message" +Math.random().toString()
              );
-          });
+          };
 
           const peer2 = answerPeer(document.querySelector("#button2"),dummy);
       
@@ -120,11 +120,11 @@ SOFTWARE.
             inputs[1].value=data.toString();
           });
 
-          buttons[3].onclick(function(){
+          buttons[3].onclick=function(){
              peer2.send(
               "test Message" +Math.random().toString()
              );
-          });
+          };
    
         function offerPeer(button,comms) {
 
