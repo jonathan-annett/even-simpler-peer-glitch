@@ -494,7 +494,7 @@ function onFrameMessage(event) {
     if (opt.target_href) {
       target_href = opt.target_href;
     }
-
+    
     // truthy options will display the associated buttons
     reset_btn.style.display = !!opt.manual ? "inline-block" : "none";
     copy_btn.style.display = !!opt.link ? "inline-block" : "none";
@@ -507,10 +507,10 @@ function onFrameMessage(event) {
     if (typeof opt.custom === 'string') {
       custom_btn.value = opt.custom;
       custom_btn.innerHTML = opt.custom;
+
     }
 
   }
-
 
   if (event.data.send) {
     sendToPeer({ message: event.data.send });
