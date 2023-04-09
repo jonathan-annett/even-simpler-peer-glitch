@@ -19,6 +19,13 @@ var routes = function (app) {
     res.send({ info: "This is a rest api. Thanks for looking though!" });
   });
   
+  app.get("/version", function (req, res) {
+    res.send({ server: process.github_rev });
+  });
+  
+  app.get("/debug", function (req, res) {
+    res.send({ numkeys });
+  });
   
   app.get ("/api",function(req,res){
       res.sendFile(__dirname + "/static/even-simpler-api.html");
@@ -29,8 +36,12 @@ var routes = function (app) {
 
     if (req.body.set) {
       
-      
          const polled = numkey_poll[req.body.set.id];
+
+         numkeys[req.body.set.id] = {
+            touched : Date.now(),
+            data    : req.body.set.data
+        };
       
          if (polled && polled.send && polled.timeout) {
            
@@ -40,43 +51,54 @@ var routes = function (app) {
             delete polled.send;
            
             delete numkey_poll[req.body.set.id];
-            delete numkeys[req.body.set.id];
+            //delete numkeys[req.body.set.id].data;
+            //delete numkeys[req.body.set.id];
             console.log("post.set sent to polled get:",req.body.set.id);
             return res.send("\"sent\"");
          }
 
-         numkeys[req.body.set.id] = {
-           touched : Date.now(),
-           data    : req.body.set.data
-         };
+         
          console.log("post.set saved for pending get:",req.body.set.id);
          return res.send("\"pending\"");
 
     }
     
     if (req.body.get) {
+         const isObj   =  typeof req.body.get === 'object';
 
-         let query = numkeys[req.body.get];
+         const id      = isObj ? req.body.get.id : req.body.get;
+         const def     = isObj && req.body.get.default || false; 
+         const timeout = isObj && req.body.get.default || 5000;
+
+         const query = numkeys[ id ];
+         
          if (query) {
            res.send(query.data);
-           console.log("post.get:",req.body.get);
-           delete query.data;
-           delete numkeys[req.body.get];
+           console.log("post.get:",id);
+           //delete query.data;
+           //delete numkeys[id];
            return;
          }
+
+         if (typeof timeout === 'number') {
       
-         numkey_poll[req.body.get] = {
-           send : res.send.bind(res),
-           timeout : setTimeout(function(){
-                if (numkey_poll[req.body.get]) {
-                  delete numkey_poll[req.body.get].timeout;
-                  delete numkey_poll[req.body.get].send;
-                  delete numkey_poll[req.body.get];
-                  res.send(false);           
-                }
-           },5000) 
-         };
-         console.log("polling post.get:",req.body.get);
+            numkey_poll[ id ] = {
+              send : res.send.bind(res),
+              timeout : setTimeout(function(){
+                    if (numkey_poll[req.body.get]) {
+                      delete numkey_poll[ id ].timeout;
+                      delete numkey_poll[ id ].send;
+                      delete numkey_poll[ id ];
+                      console.log("timed out poll for post.get:", id );
+                      res.send(def);           
+                    }
+              },timeout)
+            };
+            //console.log("polling post.get:",def);
+        } else {
+          console.log("set default for missing post.get:", id );
+          res.send(def); 
+        }
 
     }
         
@@ -104,7 +126,7 @@ var routes = function (app) {
     
     keys = Object.keys(numkeys);
     
-    console.log("keys active @ ",new Date(), keys);
+    //console.log("keys active @ ",new Date(), keys);
     
     numKeyCleanup.timeout = setTimeout(numKeyCleanup,60000);
     
