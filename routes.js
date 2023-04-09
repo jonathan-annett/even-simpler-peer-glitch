@@ -33,7 +33,6 @@ var routes = function (app) {
 
     if (req.body.set) {
       
-      
          const polled = numkey_poll[req.body.set.id];
       
          if (polled && polled.send && polled.timeout) {
@@ -53,7 +52,7 @@ var routes = function (app) {
            touched : Date.now(),
            data    : req.body.set.data
          };
-         console.log("post.set saved for pending get:",req.body.set.id);
+         //console.log("post.set saved for pending get:",req.body.set.id);
          return res.send("\"pending\"");
 
     }
@@ -64,8 +63,8 @@ var routes = function (app) {
          if (query) {
            res.send(query.data);
            console.log("post.get:",req.body.get);
-           delete query.data;
-           delete numkeys[req.body.get];
+           //delete query.data;
+           //delete numkeys[req.body.get];
            return;
          }
       
@@ -80,7 +79,7 @@ var routes = function (app) {
                 }
            },5000) 
          };
-         console.log("polling post.get:",req.body.get);
+         //console.log("polling post.get:",req.body.get);
 
     }
         
