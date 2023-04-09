@@ -55,7 +55,7 @@ var routes = function (app) {
          }
 
          
-         //console.log("post.set saved for pending get:",req.body.set.id);
+         console.log("post.set saved for pending get:",req.body.set.id);
          return res.send("\"pending\"");
 
     }
