@@ -425,7 +425,7 @@ function connectToPeer() {
   }
 }
 
-function customConnect(custom_id) {
+function customConnect(customId) {
 
   enter_peer_id.style.disabled = true;
 
