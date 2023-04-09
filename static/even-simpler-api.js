@@ -419,6 +419,13 @@ custom_btn.onclick = function () {
 
   connect_info.style.display = "none";
 
+  let test_peer = offerPeer(custom_btn);
+  test_peer.on('connect',function(){
+     log('connected ok');
+  });
+
+  /*
+
   // make a random id to paste into custom app
   let customId = (randomId() + randomId()).replace(/\-/g, '');
 
@@ -432,7 +439,7 @@ custom_btn.onclick = function () {
     'it has been copied to the clipboard.\n\n'
   );
 
-  customConnect(customId);
+  customConnect(customId); */
 }
 
 
