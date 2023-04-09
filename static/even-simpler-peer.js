@@ -23,6 +23,9 @@ SOFTWARE.
 
 
 */
+
+/* global SimplePeer */
+
 function evenSimplerPeer() {
   
   const domain        = "even-simpler-peer.glitch.me";
@@ -101,6 +104,7 @@ function evenSimplerPeer() {
       iframe.contentWindow.postMessage({target_href:href},target_origin);      
   }
   
+ 
   return {
     
     send :      sendToPeer,
