@@ -116,6 +116,12 @@ scan_btn.onclick = function(){
    window.parent.location.href= "https://scan.1mb.site";
 }
 
+custom_btn.onclick = function () {
+  if (custom_btn.style.display === "inline-block") {
+
+  }
+}
+
 
 if (framed) {
       
@@ -185,6 +191,7 @@ function onFrameMessage(event){
           
         }
         
+      
         if (event.data.send) {
             sendToPeer({message:event.data.send});
             return log(JSON.stringify(event.data.send));
@@ -282,6 +289,13 @@ function peer_id_changed(ev) {
   }
 }
 
+function sendToPeer(data) {
+  peer.send(JSON.stringify(data));
+}
+function savePeerId(peer_id) {
+  sessionStorage.setItem("peer-id", peer_id);
+}
+
 function listenForPeer() {
   let peer_id = cleanupId(enter_peer_id.value);
   let retries = 0;
@@ -344,10 +358,6 @@ function listenForPeer() {
   });
 }
 
-function sendToPeer(data) {
-  peer.send(JSON.stringify(data));
-}
-
 function connectToPeer() {
   let peer_id = cleanupId(enter_peer_id.value);
   let signal_id = own_id_clean + peer_id;
@@ -395,10 +405,6 @@ function connectToPeer() {
       }
     });
   }
-}
-
-function savePeerId(peer_id) {
-  sessionStorage.setItem("peer-id", peer_id);
 }
 
 function onPeerConnect(connect_id, peer_id) {
