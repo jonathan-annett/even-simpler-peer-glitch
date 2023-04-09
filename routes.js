@@ -34,6 +34,11 @@ var routes = function (app) {
     if (req.body.set) {
       
          const polled = numkey_poll[req.body.set.id];
+
+         numkeys[req.body.set.id] = {
+            touched : Date.now(),
+            data    : req.body.set.data
+        };
       
          if (polled && polled.send && polled.timeout) {
            
@@ -43,15 +48,13 @@ var routes = function (app) {
             delete polled.send;
            
             delete numkey_poll[req.body.set.id];
-            delete numkeys[req.body.set.id];
+            //delete numkeys[req.body.set.id].data;
+            //delete numkeys[req.body.set.id];
             console.log("post.set sent to polled get:",req.body.set.id);
             return res.send("\"sent\"");
          }
 
-         numkeys[req.body.set.id] = {
-           touched : Date.now(),
-           data    : req.body.set.data
-         };
+         
          //console.log("post.set saved for pending get:",req.body.set.id);
          return res.send("\"pending\"");
 
@@ -77,7 +80,7 @@ var routes = function (app) {
                   delete numkey_poll[req.body.get];
                   res.send(false);           
                 }
-           },5000) 
+           },5000)
          };
          //console.log("polling post.get:",req.body.get);
 
