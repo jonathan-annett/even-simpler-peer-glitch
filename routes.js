@@ -78,6 +78,7 @@ var routes = function (app) {
                   delete numkey_poll[req.body.get].timeout;
                   delete numkey_poll[req.body.get].send;
                   delete numkey_poll[req.body.get];
+                  console.log("timed out poll for post.get:",req.body.get);
                   res.send(false);           
                 }
            },5000)
