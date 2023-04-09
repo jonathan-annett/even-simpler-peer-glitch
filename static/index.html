@@ -54,7 +54,7 @@ SOFTWARE.
           const buttons = document.querySelectorAll("button");
 
 
-          const comms = {
+          const dummy = {
             db : {},
             fn : {},
             sendOffer  : function(offer){
@@ -87,7 +87,7 @@ SOFTWARE.
             }
           };
         
-          const peer = offerPeer(document.querySelector("#button1"),comms);
+          const peer = offerPeer(document.querySelector("#button1"),dummy);
       
           peer.on('connect',function(){
             alert('yay. peer1 connected');
@@ -107,7 +107,7 @@ SOFTWARE.
              );
           });
 
-          const peer2 = answerPeer(document.querySelector("#button2"),comms);
+          const peer2 = answerPeer(document.querySelector("#button2"),dummy);
       
           peer2.on('connect',function(){
             alert('yay. peer2 connected');
