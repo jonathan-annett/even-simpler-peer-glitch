@@ -138,7 +138,7 @@ SOFTWARE.
           });
           let finalPeerOffer;
           finalPeer.on('signal',function(offer){
-            sendOffer=offer;
+            finalPeerOffer=offer;
           });
 
           comms.onAnswer(finalPeer.signal);
