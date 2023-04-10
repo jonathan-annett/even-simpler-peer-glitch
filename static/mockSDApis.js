@@ -44,9 +44,9 @@ function mockPIApi(){
         onSendToPropertyInspector
     };
 
-    function sendToPlugin(payload) {
+    function sendToPlugin({context,action,payload}) {
         if (mockSD.fn.plugin) {
-            mockSD.fn.plugin({payload:payload}); 
+            mockSD.fn.plugin({context,action,payload}); 
         } else {
             mockSD.db.plugin=payload;
         }
