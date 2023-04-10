@@ -54,7 +54,7 @@ function pluginPeer(SDApi) {
         }
 
         
-        if (close===false) {
+        if (close) {
             onClose();
         }
         
