@@ -1,6 +1,6 @@
 /* global SimplePeer */
 
-function pluginPeer() {
+function pluginPeer(context,action) {
 
 
     let peer;
