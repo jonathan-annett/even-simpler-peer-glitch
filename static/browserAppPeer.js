@@ -4,8 +4,8 @@ function browserAppPeer(button, labels) {
 
     labels = labels || {
         copyOffer:   "copy connect request",
-        pendingBlur : "click \"paste connection\" into streamdeck",
-        pasteAnswer: "paste connection",
+        pendingBlur : "click \"paste connection\" in streamdeck",
+        pasteAnswer: "paste response",
         connected: "(connected)"
     };
 
@@ -50,24 +50,21 @@ function browserAppPeer(button, labels) {
             navigator.clipboard.writeText(offerJSON).then(function() {
                 offerJSON = undefined;
                 setupButton(labels.pendingBlur, null);
-                window.addEventListener(tempBlur);
-
-               
+                window.addEventListener('blur',tempBlur);              
             });
         }
     }
  
     function tempBlur() {
         setupButton(labels.pasteAnswer, pasteAnswerClickEvent);
-        window.removeEventListener(tempBlur);
+        window.removeEventListener('blur',tempBlur);
     }
 
     function pasteAnswerClickEvent(ev) {
         navigator.clipboard.readText().then(function(signalb64) {
 
             if (signalb64===offerJSON) {
-                window.addEventListener(tempBlur);
-
+                window.addEventListener('blur',tempBlur);
                 return alert (labels.pendingBlur);
             }
             try {

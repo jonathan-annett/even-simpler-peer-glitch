@@ -6,8 +6,9 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
     let peer, answer1;
 
     labels = labels || {
-        pasteOffer: "paste offer",
-        copyAnswer: "copy answer",
+        pasteOffer:  "paste connection",
+        copyAnswer:  "copy connection response",
+        pendingBlur: "click \"paste response\" in browser",
         connected: "(connected)"
     };
     
@@ -64,18 +65,31 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
         if (answer1) {
 
             navigator.clipboard.writeText(btoa(JSON.stringify(answer1))).then(function() {
-            setupButton(labels.copyAnswer, null);
+
+               setupButton(labels.pendingBlur, null);
+               
 
             });
         }
     }
-
-
+ 
     function onConnect() {
         if (peer) {
             peer.on('data', onData);
-            setupButton(labels.connected, null);
+            setupButton(labels.connected, forceClose);
         }
+    }
+
+    function forceClose () {
+        $PI.sendToPlugin({
+            "action": action,
+            "event": "sendToPlugin",
+            "context": context,
+            "payload" : {
+               connected: false
+            }
+        });  
+        setupButton(labels.connected, null);
     }
 
     function onClose() {

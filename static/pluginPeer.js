@@ -55,6 +55,15 @@ function pluginPeer() {
             events.connect.forEach(function(fn) {
                 fn();
             });
+
+        } else {
+            if (connected===false) {
+                const closingPeer = peer;
+                if (closingPeer) {
+                    peer=undefined;
+                    closingPeer.destroy();
+                }
+            }
         }
 
     }
