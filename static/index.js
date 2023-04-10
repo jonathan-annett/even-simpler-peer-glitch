@@ -45,7 +45,7 @@ document.querySelector("#test2").onclick=function(){
 };
 
 
-const plugin_peer = pluginPeer ();
+const plugin_peer = pluginPeer (mockSDApi());
   plugin_peer.on('connect',function(){
     document.querySelector("#plug_test").disabled=false;
    // alert('yay. plugin_peer connected');
@@ -67,7 +67,9 @@ const plugin_peer = pluginPeer ();
   };
   
 
-const pi_peer  = propertyInspectorPeer(document.querySelector("#pi_button"), "action","context", "uuid");
+ 
+
+const pi_peer  = propertyInspectorPeer(document.querySelector("#pi_button"), "action","context", "uuid",mockPIApi());
 const app_peer = browserAppPeer(document.querySelector("#app_button"));
 
 app_peer.on('connect',function(){

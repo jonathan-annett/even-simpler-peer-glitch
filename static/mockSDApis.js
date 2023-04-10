@@ -7,9 +7,6 @@ const mockSD = {
 
 };
 
-const $SD = mockSDApi();
-const $PI = mockPIApi();
-
 
 function mockSDApi(){
 
