@@ -36,11 +36,7 @@ function pluginPeer() {
             peer.on('signal',function(answer) {
                 $SD.sendToPropertyInspector(context,{answer:answer},action);
             });
-            peer.on('data', function(data) {
-                events.data.forEach(function(fn) {
-                    fn(data);
-                });
-            });
+            peer.on('data', onData);
             peer.on('close', function(data) {
                 events.close.forEach(function(fn) {
                     fn();
@@ -61,6 +57,20 @@ function pluginPeer() {
             });
         }
 
+    }
+
+    function onData(data) {
+        if (peer) {
+            try {
+
+                const payload = JSON.parse(data);                
+                events.data.forEach(function(fn) {
+                    fn(payload);
+                });
+            } catch(e) {
+
+            } 
+        }
     }
 
     function peerAddListener(e, fn) {
@@ -90,7 +100,7 @@ function pluginPeer() {
 
     function peerSend(data) {
         if (peer) {
-            return peer.send(data);
+            return peer.send(JSON.stringify(data));
         }
     }
 

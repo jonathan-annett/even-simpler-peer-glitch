@@ -86,7 +86,7 @@ function browserAppPeer(button, labels) {
             });
 
             peer.on('signal', function(signalData) {
-                tempPeer.send(signalData);
+                tempPeer.send(JSON.stringify(signalData));
             });
 
             peer.on('connect', onConnect);
@@ -110,9 +110,15 @@ function browserAppPeer(button, labels) {
 
     function onData(data) {
         if (peer) {
-            events.data.forEach(function(fn) {
-                fn(data);
-            });
+            try {
+
+                const payload = JSON.parse(data);                
+                events.data.forEach(function(fn) {
+                    fn(payload);
+                });
+            } catch(e) {
+
+            } 
         }
     }
 
@@ -160,7 +166,7 @@ function browserAppPeer(button, labels) {
 
     function peerSend(data) {
         if (peer) {
-            return peer.send(data);
+            return peer.send(JSON.stringify(data));
         }
     }
 

@@ -95,16 +95,20 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
 
     }
 
-    function onData(offer) {
+    function onData(data) {
         if (peer) {
-             $PI.sendToPlugin({
-                "action": action,
-                "event": "sendToPlugin",
-                "context": context,
-                "payload" : {
-                    offer: offer
-                }
-            });
+            try {
+                $PI.sendToPlugin({
+                    "action": action,
+                    "event": "sendToPlugin",
+                    "context": context,
+                    "payload" : {
+                        offer: JSON.parse(data)
+                    }
+                });
+            catch(e) {
+
+            }
         }
     }
 
