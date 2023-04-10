@@ -74,7 +74,6 @@ function browserAppPeer(button, labels) {
             function continueRegardless(){
 
                 navigator.clipboard.writeText(offerJSON).then(function() {
-                    offerJSON = undefined;
                     setupButton(labels.pendingBlur, null);
                     window.addEventListener('blur',tempBlur);              
                 });

@@ -13,7 +13,7 @@ peer.on('close',function(){
 });
 
 peer.on('data',function(data){
-  document.querySelector("#in1").value=data.toString();
+  document.querySelector("#in1").value=typeof data === 'object' ? JSON.stringify(data,undefined,4) :data ;
 });
 
 document.querySelector("#test1").onclick=function(){
@@ -35,7 +35,7 @@ peer2.on('close',function(){
 });
 
 peer2.on('data',function(data){
-    document.querySelector("#in2").value=data.toString();
+    document.querySelector("#in2").value=typeof data === 'object' ? JSON.stringify(data,undefined,4) :data ;
 });
 
 document.querySelector("#test2").onclick=function(){
@@ -57,7 +57,7 @@ const plugin_peer = pluginPeer (mockSDApi());
   });
   
   plugin_peer.on('data',function(data){
-    document.querySelector("#plug_in").value=data.toString();
+    document.querySelector("#plug_in").value=typeof data === 'object' ? JSON.stringify(data,undefined,4) :data ;
   });
   
   document.querySelector("#plug_test").onclick=function(){
@@ -84,7 +84,7 @@ app_peer.on('close',function(){
 });
 
 app_peer.on('data',function(data){
-    document.querySelector("#app_in").value=data.toString();
+    document.querySelector("#app_in").value= typeof data === 'object' ? JSON.stringify(data,undefined,4) :data ;
 });
 
 document.querySelector("#app_test").onclick=function(){
