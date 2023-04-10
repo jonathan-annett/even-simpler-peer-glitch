@@ -62,6 +62,7 @@ function browserAppPeer(button, labels) {
                 if (signalData && signalData.type === "answer") {
                     tempPeer.signal(signalData);
                     tempPeer.on('connect', onTempConnect);
+                    tempPeer.on('data',onTempData);
 
                 }
 
@@ -91,6 +92,18 @@ function browserAppPeer(button, labels) {
 
             peer.on('connect', onConnect);
 
+            
+
+        }
+    }
+
+    function onTempData (data) {
+        if (peer) {
+            try {
+                peer.signal(JSON.parse(data));
+            } catch (e) {
+
+            }
         }
     }
 
