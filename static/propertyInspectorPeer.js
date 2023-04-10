@@ -106,6 +106,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
                         offer: JSON.parse(data)
                     }
                 });
+            }
             catch(e) {
 
             }
