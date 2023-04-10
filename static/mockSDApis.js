@@ -18,9 +18,9 @@ function mockSDApi(){
         onSendToPlugin
     };
 
-    function sendToPropertyInspector(payload) {
+    function sendToPropertyInspector(context,payload,action) {
         if (mockSD.fn.pi) {
-            mockSD.fn.pi({payload:payload}); 
+            mockSD.fn.pi({context,payload,action}); 
         } else {
             mockSD.db.pi=payload;
         }
