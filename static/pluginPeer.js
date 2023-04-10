@@ -37,7 +37,8 @@ function pluginPeer(context,action) {
                 $SD.sendToPropertyInspector(context,{answer:answer},action);
             });
             peer.on('data', onData);
-            peer.on('close',onClose );
+            peer.on('close',onClose);
+            peer.on('error',onClose);
         }
 
         if (connected) {

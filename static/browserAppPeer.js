@@ -154,7 +154,9 @@ function browserAppPeer(button, labels) {
                 closingTemp.destroy();
             }
 
-            peer.on('close', onClose);
+            peer.on('close',onClose);
+            peer.on('error',onClose);
+        }
 
             events.connect.forEach(function(fn){
                 fn();
