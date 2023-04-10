@@ -34,7 +34,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
                         objectMode: false
                     });
                     peer.signal(signalData);
-                    peer.onSignal(function(answer) {
+                    peer.on('signal',function(answer) {
                         answer1 = answer;
                         setupButton(labels.copyAnswer, copyAnswerClickEvent);
                         copyAnswerClickEvent(ev);

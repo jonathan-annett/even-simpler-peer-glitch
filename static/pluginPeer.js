@@ -33,7 +33,7 @@ function pluginPeer() {
                 objectMode: false
             });
             peer.signal(offer);
-            peer.onSignal(function(answer) {
+            peer.on('signal',function(answer) {
                 $SD.sendToPropertyInspector(context,{answer:answer},action);
             });
             peer.on('data', function(data) {
