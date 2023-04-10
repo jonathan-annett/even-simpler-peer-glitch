@@ -56,7 +56,7 @@ function browserAppPeer(button, labels) {
             clipboardBackup=undefined;
             navigator.clipboard.read().then(function(whatever) {
                 clipboardBackup=whatever;
-                continue=Regardless();
+                continueRegardless();
             }).catch(continueRegardless);
 
 
