@@ -77,6 +77,14 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
         if (peer) {
             peer.on('data', onData);
             setupButton(labels.connected, forceClose);
+            $PI.sendToPlugin({
+                "action": action,
+                "event": "sendToPlugin",
+                "context": context,
+                "payload" : {
+                   connected: true
+                }
+            });
         }
     }
 
@@ -96,18 +104,8 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
         let closingPeer = peer;
         peer = undefined;
         if (closingPeer) {
-            $PI.sendToPlugin({
-                "action": action,
-                "event": "sendToPlugin",
-                "context": context,
-                "payload" : {
-                   connected: true
-                }
-            });
             closingPeer.destroy();
         }
-
-       
 
     }
 
