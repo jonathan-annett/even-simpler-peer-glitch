@@ -118,7 +118,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
             answer
         } = payload || {};
         if (answer) {
-            peer.send(answer);
+            peer.send(JSON.stringify(answer));
         }
     }
 
