@@ -46,9 +46,9 @@ function browserAppPeer(button, labels) {
     }
 
     function copyOfferClickEvent(ev) {
-        if (offer) {
+        if (offerJSON) {
             navigator.clipboard.writeText(offerJSON).then(function() {
-                offer = undefined;
+                offerJSON = undefined;
                 setupButton(labels.pendingBlur, null);
                 window.addEventListener(tempBlur);
 
