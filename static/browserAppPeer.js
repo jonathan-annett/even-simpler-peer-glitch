@@ -23,6 +23,17 @@ function browserAppPeer(button, labels) {
         close: peerClose
     };
 
+    Object.defineProperties(self, {
+        connected: {    
+            get: function() {
+                return peer ? peer.connected : false;
+            },
+            enumerable: true,
+            configurable: false
+        }   
+    
+    });
+
     tempPeer = createTempPeer(); 
 
     return self;
@@ -220,7 +231,7 @@ function browserAppPeer(button, labels) {
     }
 
     function peerSend(data) {
-        if (peer) {
+        if (peer && peer.connected) {
             return peer.send(JSON.stringify(data));
         }
     }
