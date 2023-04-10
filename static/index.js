@@ -69,7 +69,7 @@ const plugin_peer = pluginPeer (mockSDApi());
 
  
 
-const pi_peer  = propertyInspectorPeer(document.querySelector("#pi_button"), "action","context", "uuid",mockPIApi());
+const pi_peer  = propertyInspectorPeer(document.querySelector("#pi_button"), mockPIApi());
 const app_peer = browserAppPeer(document.querySelector("#app_button"));
 
 app_peer.on('connect',function(){

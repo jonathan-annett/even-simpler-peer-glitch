@@ -1,6 +1,6 @@
 /* global SimplePeer*/
  
-function propertyInspectorPeer(button, action,context, uuid, PIApi, labels) {
+function propertyInspectorPeer(button, PIApi, labels) {
 
 
     let peer, answer1;
@@ -156,4 +156,16 @@ function propertyInspectorPeer(button, action,context, uuid, PIApi, labels) {
         button.disabled = !!!clickEvent;
     }
 
+}
+
+
+function PIApi ($PI, uuid ){
+    return  {
+        onSendToPropertyInspector : function(fn){
+            return $PI.onSendToPropertyInspector(uuid,fn);
+        },
+        sendToPlugin : function(payload){
+            return $PI.sendToPlugin(payload);
+        }
+    };
 }

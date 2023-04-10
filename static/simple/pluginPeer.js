@@ -134,3 +134,14 @@ function pluginPeer(SDApi) {
     }
 
 }
+
+function SDApi ($SD,context, action) {
+    return  {
+        onSendToPlugin: function(fn){
+            return myAction.onSendToPlugin(fn);
+        },
+        sendToPropertyInspector:function(payload) {
+            return $SD.sendToPropertyInspector(context, payload, action );
+        }	
+    };
+}
