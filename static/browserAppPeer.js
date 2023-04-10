@@ -56,7 +56,7 @@ function browserAppPeer(button, labels) {
         navigator.clipboard.read().then(function(signalb64) {
             try {
 
-                const signalData = JSON.parse(btoa(signalb64));
+                const signalData = JSON.parse(atob(signalb64));
 
                 if (signalData && signalData.type === "answer") {
                     tempPeer.signal(signalData);

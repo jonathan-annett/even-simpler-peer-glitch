@@ -22,7 +22,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
         navigator.clipboard.readText().then(function(signalb64) {
             try {
 
-                const signalData = JSON.parse(btoa(signalb64));
+                const signalData = JSON.parse(atob(signalb64));
 
                 if (signalData && signalData.type === "offer") {
                     if (peer) {
