@@ -42,7 +42,7 @@ document.querySelector("#test2").onclick=function(){
 
 
 const plugin_peer = pluginPeer ();
-plugin_peer.on('connect',function(){
+  plugin_peer.on('connect',function(){
     alert('yay. plugin_peer connected');
   });
   

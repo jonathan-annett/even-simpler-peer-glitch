@@ -105,6 +105,10 @@ function browserAppPeer(button, labels) {
 
             peer.on('close', onClose);
 
+            events.connect.forEach(function(fn){
+                fn();
+            });
+
         }
     }
 

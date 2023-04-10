@@ -112,7 +112,7 @@ SOFTWARE.
                                                                       ... peer1.destroy()
                                                                     peer1 = new(init,notrickle)
                                                                     wait until peer1.onSignal()
-			                                                              offer1 = peer1.onSignal()
+                                                                    offer1 = peer1.onSignal()
                                                                     wait until click()
                                                                     clip.write(offer1)
                                       wait until click()
@@ -121,9 +121,9 @@ SOFTWARE.
                                          ... peer2.destroy()
 
                                       peer2 = new (notrickle) 
-			                                peer2.signal(offer1)
+                                      peer2.signal(offer1)
                                       wait until peer2.onSignal()
-							                        answer1 = peer2.onSignal()
+                                      answer1 = peer2.onSignal()
                                       clip.write(answer1)
                                           ( if fail: 
                                             wait until click(), 
@@ -131,14 +131,14 @@ SOFTWARE.
 
                                                                     wait until click()
                                                                     answer1=clip.read()
-			                                                              peer1.signal(answer1)
-			                                                              wait until onConnect()
+                                                                    peer1.signal(answer1)
+                                                                    wait until onConnect()
                                                                     peer3=new(init,notrickle)
-							                                                      offer2=peer3.onSignal()
-							                                                      peer1.send(offer2)
+                                                                    offer2=peer3.onSignal()
+                                                                    peer1.send(offer2)
                                       wait until onConnect()
                                       wait until onData() 
-			                                offer2=peer2.onData()
+                                      offer2=peer2.onData()
                                       $pi.sendToPlugin(offer2)
       wait until $sd.onSendToPlugin()
       offer2=$sd.onSendToPlugin()
@@ -163,7 +163,7 @@ SOFTWARE.
                                       peer2.destroy()
 
      $sd.onSendToPlugin()=="connected"?
-         emit("connected")
+     emit("connected")
          
      peer4.onData()==>emit("data")
      wait until peer4.onClose()
