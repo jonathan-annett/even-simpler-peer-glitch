@@ -112,10 +112,8 @@ function pluginPeer() {
     }
 
     function peerClose() {
-        const closingPeer = peer;
-        peer = undefined;
-        if (closingPeer) {
-            closingPeer.destroy();
+         if (peer) {
+            peer.destroy();
         }
     }
 
