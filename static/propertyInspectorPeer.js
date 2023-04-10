@@ -107,7 +107,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
             closingPeer.destroy();
         }
 
-        setupButton(labels.pasteOffer, pasteOfferClickEvent);
+       
 
     }
 
@@ -131,10 +131,15 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
 
     function onSendToPi({payload}) {
         const {
-            answer
+            answer,
+            closed
         } = payload || {};
         if (answer) {
             peer.send(JSON.stringify(answer));
+        }
+
+        if (closed) {
+            setupButton(labels.pasteOffer, pasteOfferClickEvent);
         }
     }
 

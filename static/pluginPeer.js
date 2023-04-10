@@ -44,9 +44,7 @@ function pluginPeer() {
                 if (peer) {
                     peer.destroy();
                 }
-                events.close.splice(0, events.close.length);
-                events.data.splice(0, events.data.length);
-                events.connect.splice(0, events.connect.length);
+                $SD.sendToPropertyInspector(context,{closed:true},action);
             });
         }
 

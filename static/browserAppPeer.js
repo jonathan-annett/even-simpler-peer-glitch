@@ -161,9 +161,6 @@ function browserAppPeer(button, labels) {
             events.close.forEach(function(fn) {
                 fn();
             });
-            events.close.splice(0, events.close.length);
-            events.connect.splice(0, events.connect.length);
-            events.data.splice(0, events.data.length);
             const closingPeer = peer;
             peer = undefined;
             closingPeer.destroy();
