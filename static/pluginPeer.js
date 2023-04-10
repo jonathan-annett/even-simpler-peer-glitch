@@ -49,11 +49,7 @@ function pluginPeer(context,action) {
 
         } else {
             if (connected===false) {
-                const closingPeer = peer;
-                if (closingPeer) {
-                    peer=undefined;
-                    closingPeer.destroy();
-                }
+                onClose();
             }
         }
 
