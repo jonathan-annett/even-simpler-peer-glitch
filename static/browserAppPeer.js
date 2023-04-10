@@ -3,10 +3,10 @@
 function browserAppPeer(button, labels) {
 
     labels = labels || {
-        copyOffer:   "copy connect request",
+        copyOffer:   "Connect",
         pendingBlur : "click \"paste connection\" in streamdeck",
         pasteAnswer: "paste response",
-        connected: "(connected)"
+        connected: "Disconnect"
     };
 
     let tempPeer, peer, offerJSON;
@@ -138,6 +138,8 @@ function browserAppPeer(button, labels) {
             events.connect.forEach(function(fn){
                 fn();
             });
+
+            setupButton(labels.connected, peerClose);
 
         }
     }

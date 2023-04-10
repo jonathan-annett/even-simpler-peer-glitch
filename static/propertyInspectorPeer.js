@@ -6,10 +6,10 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
     let peer, answer1;
 
     labels = labels || {
-        pasteOffer:  "paste connection",
+        pasteOffer:  "Connect",
         copyAnswer:  "copy connection response",
         pendingBlur: "click \"paste response\" in browser",
-        connected: "(connected)"
+        connected: "Disconnect"
     };
     
     
@@ -21,11 +21,13 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
     function pasteOfferClickEvent(ev) {
 
         navigator.clipboard.readText().then(function(signalb64) {
+            let failed = true;
             try {
 
                 const signalData = JSON.parse(atob(signalb64));
 
                 if (signalData && signalData.type === "offer") {
+                    failed = false;
                     if (peer) {
                         peer.destroy();
                     }
@@ -48,7 +50,14 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
 
             } catch (e) {
 
+            } finally {
+                if (failed) {
+                    alert("please click Connect in the browser app first");
+                }
             }
+
+        }),catch(function(x){
+
         });
 
     }
