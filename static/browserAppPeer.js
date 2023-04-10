@@ -9,7 +9,7 @@ function browserAppPeer(button, labels) {
         connected: "Disconnect"
     };
 
-    let tempPeer, peer, offerJSON,clipboardBackup;
+    let tempPeer, peer, peer_connected, offerJSON,clipboardBackup;
 
     const events = {
         data: [],
@@ -26,7 +26,7 @@ function browserAppPeer(button, labels) {
     Object.defineProperties(self, {
         connected: {    
             get: function() {
-                return peer ? peer.connected : false;
+                return peer ? peer_connected : false;
             },
             enumerable: true,
             configurable: false
@@ -172,6 +172,8 @@ function browserAppPeer(button, labels) {
                 fn();
             });
 
+            peer_connected = true;
+
             setupButton(labels.connected, peerClose);
 
         }
@@ -200,6 +202,7 @@ function browserAppPeer(button, labels) {
             peer = undefined;
             closingPeer.destroy();
         }
+        peer_connected = false;
         tempPeer = createTempPeer(); 
     }
 
@@ -231,7 +234,7 @@ function browserAppPeer(button, labels) {
     }
 
     function peerSend(data) {
-        if (peer && peer.connected) {
+        if (peer && peer_connected) {
             return peer.send(JSON.stringify(data));
         }
     }
