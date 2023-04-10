@@ -3,12 +3,13 @@
 function browserAppPeer(button, labels) {
 
     labels = labels || {
-        copyOffer: "copy offer",
-        pasteAnswer: "paste answer",
+        copyOffer:   "copy connect request",
+        pendingBlur : "click \"paste connection\" into streamdeck",
+        pasteAnswer: "paste connection",
         connected: "(connected)"
     };
 
-    let tempPeer, peer, offer;
+    let tempPeer, peer, offerJSON;
 
     const events = {
         data: [],
@@ -29,7 +30,7 @@ function browserAppPeer(button, labels) {
     });
 
     tempPeer.on('signal', function(signalData) {
-        offer = signalData;
+        offerJSON = btoa(JSON.stringify(signalData)) ;
         setupButton(labels.copyOffer, copyOfferClickEvent);
     });
 
@@ -46,15 +47,29 @@ function browserAppPeer(button, labels) {
 
     function copyOfferClickEvent(ev) {
         if (offer) {
-            navigator.clipboard.writeText(btoa(JSON.stringify(offer))).then(function() {
+            navigator.clipboard.writeText(offerJSON).then(function() {
                 offer = undefined;
-                setupButton(labels.pasteAnswer, pasteAnswerClickEvent);
+                setupButton(labels.pendingBlur, null);
+                window.addEventListener(tempBlur);
+
+               
             });
         }
+    }
+ 
+    function tempBlur() {
+        setupButton(labels.pasteAnswer, pasteAnswerClickEvent);
+        window.removeEventListener(tempBlur);
     }
 
     function pasteAnswerClickEvent(ev) {
         navigator.clipboard.readText().then(function(signalb64) {
+
+            if (signalb64===offerJSON) {
+                window.addEventListener(tempBlur);
+
+                return alert (labels.pendingBlur);
+            }
             try {
 
                 const signalData = JSON.parse(atob(signalb64));
@@ -64,7 +79,7 @@ function browserAppPeer(button, labels) {
                     tempPeer.on('connect', onTempConnect);
                     tempPeer.on('data',onTempData);
 
-                }
+                }  
 
             } catch (e) {
 
