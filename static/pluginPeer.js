@@ -117,9 +117,7 @@ function pluginPeer() {
     }
 
     function peerClose() {
-         if (peer) {
-            peer.destroy();
-        }
+         onClose();
     }
 
 }
