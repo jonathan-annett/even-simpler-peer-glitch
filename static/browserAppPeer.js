@@ -156,8 +156,7 @@ function browserAppPeer(button, labels) {
 
             peer.on('close',onClose);
             peer.on('error',onClose);
-        }
-
+       
             events.connect.forEach(function(fn){
                 fn();
             });
