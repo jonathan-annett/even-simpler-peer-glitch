@@ -41,17 +41,17 @@ function mockPIApi(){
         onSendToPropertyInspector
     };
 
-    function sendToPlugin({context,action,payload}) {
+    function sendToPlugin(payload) {
         if (mockSD.fn.plugin) {
-            mockSD.fn.plugin({context,action,payload}); 
+            mockSD.fn.plugin(payload); 
         } else {
             mockSD.db.plugin=payload;
         }
     }
 
-    function onSendToPropertyInspector(uuid,fn) {
+    function onSendToPropertyInspector(fn) {
         if (mockSD.db.pi) {
-            fn({payload:mockSD.db.pi});
+            fn(mockSD.db.pi);
             delete mockSD.db.pi;
         }
         mockSD.fn.pi = fn;
