@@ -1,5 +1,5 @@
 
-const mockSD {
+const mockSD = {
 
     fn : {},
 

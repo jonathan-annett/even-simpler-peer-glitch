@@ -1,7 +1,5 @@
 /* global SimplePeer*/
-        "action": action,
-        "event": "sendToPlugin",
-        "context": context,
+ 
 function propertyInspectorPeer(button, action,context, uuid, labels) {
 
 

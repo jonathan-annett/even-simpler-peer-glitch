@@ -20,7 +20,7 @@ function pluginPeer() {
 
     return self;
 
-    function onSendToPlugin({{action, context, payload}}) {
+    function onSendToPlugin({action, context, payload}) {
          const {
             offer, connected
         } = payload || {};
