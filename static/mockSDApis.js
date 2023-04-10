@@ -52,7 +52,7 @@ function mockPIApi(){
         }
     }
 
-    function onSendToPropertyInspector(fn) {
+    function onSendToPropertyInspector(uuid,fn) {
         if (mockSD.db.pi) {
             fn({payload:mockSD.db.pi});
             delete mockSD.db.pi;
