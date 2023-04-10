@@ -3,7 +3,7 @@ const mockSD = {
 
     fn : {},
 
-    db : {};
+    db : {}
 
 };
 
