@@ -28,6 +28,15 @@ SOFTWARE.
     
       <script src="simplepeer.min.js"></script>
 
+      <style>
+        
+        input {
+
+          width : 90vw;
+
+        }
+        </style>
+
   </head>
   <body>
     <h1>link two browsers via https rest API (in node.js)</h1>
@@ -79,7 +88,7 @@ SOFTWARE.
       --1--
     </button>
     <br>
-    <input id="in1" type="text"><br><button disabled  id="test1">test</button>
+    <input id="in1" type="text"><br><button disabled  id="test1">send random</button>
       
     </div>
     
@@ -89,7 +98,7 @@ SOFTWARE.
       --2--
     </button>
     <br>
-    <input id="in2" type="text"><br><button disabled  id="test2">test</button>
+    <input id="in2" type="text"><br><button disabled  id="test2">send random</button>
     </div>
 
 
@@ -274,7 +283,7 @@ SOFTWARE.
 <br>
 <input id="app_in" type="text">
 <br>
-<button id="app_test">send random</button>  
+<button disabled  id="app_test">send random</button>  
 </div>
 
 <div style="background-color:yellow;margin:20px;">
@@ -288,7 +297,7 @@ SOFTWARE.
  <div style="background-color:lightgray;margin:20px;">
   <h3>Plugin</h3>
   <br>
-  <input disabled  id="plug_in" type="text">
+  <input id="plug_in" type="text">
   <br>
   <button disabled id="plug_test">send random</button>  
 </div>

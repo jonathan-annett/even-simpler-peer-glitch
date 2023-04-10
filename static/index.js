@@ -27,10 +27,10 @@ const peer2 = answerPeer(document.querySelector("#button2"));
 
 peer2.on('connect',function(){
   //alert('yay. peer2 connected');
-  document.querySelector("#test2").disabled=true;
+  document.querySelector("#test2").disabled=false;
 });
 peer2.on('close',function(){
-  document.querySelector("#test2").disabled=false;
+  document.querySelector("#test2").disabled=true;
   //alert('boo. peer2 disconnected');
 });
 
