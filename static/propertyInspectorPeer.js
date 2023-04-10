@@ -107,6 +107,8 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
             closingPeer.destroy();
         }
 
+        setupButton(labels.pasteOffer, pasteOfferClickEvent);
+
     }
 
     function onData(data) {

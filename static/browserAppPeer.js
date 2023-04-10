@@ -23,18 +23,23 @@ function browserAppPeer(button, labels) {
         close: peerClose
     };
 
-    tempPeer = new SimplePeer({
-        initiator: true,
-        trickle: false,
-        objectMode: false,
-    });
-
-    tempPeer.on('signal', function(signalData) {
-        offerJSON = btoa(JSON.stringify(signalData)) ;
-        setupButton(labels.copyOffer, copyOfferClickEvent);
-    });
+    tempPeer = createTempPeer(); 
 
     return self;
+
+    function createTempPeer() {
+        tempPeer = new SimplePeer({
+            initiator: true,
+            trickle: false,
+            objectMode: false,
+        });
+    
+        tempPeer.on('signal', function(signalData) {
+            offerJSON = btoa(JSON.stringify(signalData)) ;
+            setupButton(labels.copyOffer, copyOfferClickEvent);
+        }); 
+        return tempPeer;   
+    }
 
 
     function setupButton(label, clickEvent) {
@@ -104,7 +109,7 @@ function browserAppPeer(button, labels) {
 
             peer.on('connect', onConnect);
 
-            
+               
 
         }
     }
@@ -162,8 +167,8 @@ function browserAppPeer(button, labels) {
             const closingPeer = peer;
             peer = undefined;
             closingPeer.destroy();
-
         }
+        tempPeer = createTempPeer(); 
     }
 
 
