@@ -56,7 +56,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
                 }
             }
 
-        }),catch(function(x){
+        }).catch(function(x){
 
         });
 
