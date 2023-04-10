@@ -61,7 +61,7 @@ plugin_peer.on('connect',function(){
   };
   
 
-const pi_peer  = propertyInspectorPeer(document.querySelector("#pi_button"), action,context, uuid);
+const pi_peer  = propertyInspectorPeer(document.querySelector("#pi_button"), "action","context", "uuid");
 const app_peer = browserAppPeer(document.querySelector("#app_button"));
 
 app_peer.on('connect',function(){
