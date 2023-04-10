@@ -44,7 +44,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
                     });
 
                     peer.on('connect', onConnect);
-                    peer.on('close', onClose);
+                    //peer.on('close', onClose);
 
                 }
 
@@ -108,7 +108,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
         });  
         setupButton(labels.connected, null);
     }
-
+    /*
     function onClose() {
         let closingPeer = peer;
         peer = undefined;
@@ -116,7 +116,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
             closingPeer.destroy();
         }
 
-    }
+    }*/
 
     function onData(data) {
         if (peer) {
