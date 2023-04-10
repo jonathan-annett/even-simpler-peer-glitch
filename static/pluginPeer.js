@@ -1,9 +1,9 @@
 /* global SimplePeer */
 
-function pluginPeer(context,action) {
+function pluginPeer(SDApi) {
 
 
-    let peer;
+    let peer,peer_connected = false;
     const events = {
         data: [],
         connect: [],
@@ -16,13 +16,24 @@ function pluginPeer(context,action) {
         close: peerClose
     };
 
-    $SD.onSendToPlugin(onSendToPlugin);
+    Object.defineProperties(self, {
+        connected: {    
+            get: function() {
+                return peer ? peer_connected : false;
+            },
+            enumerable: true,
+            configurable: false
+        }   
+    
+    });
+
+    SDApi.onSendToPlugin(onSendToPlugin);
 
     return self;
 
-    function onSendToPlugin({action, context, payload}) {
+    function onSendToPlugin(payload) {
          const {
-            offer, connected
+            offer, close
         } = payload || {};
 
         if (offer) {
@@ -34,25 +45,30 @@ function pluginPeer(context,action) {
             });
             peer.signal(offer);
             peer.on('signal',function(answer) {
-                $SD.sendToPropertyInspector(context,{answer:answer},action);
+                SDApi.sendToPropertyInspector({answer:answer});
             });
+            peer.on('connect', onConnect);
             peer.on('data', onData);
             peer.on('close',onClose);
             peer.on('error',onClose);
         }
 
-        if (connected) {
-
-            events.connect.forEach(function(fn) {
-                fn();
-            });
-
-        } else {
-            if (connected===false) {
-                onClose();
-            }
+        
+        if (close===false) {
+            onClose();
         }
+        
 
+    }
+
+    function onConnect() {
+       
+        events.connect.forEach(function(fn) {
+            fn();
+        });
+    
+        peer_connected = true;
+         
     }
 
     function onClose() {
@@ -63,9 +79,9 @@ function pluginPeer(context,action) {
             const closingPeer = peer;
             peer = undefined;
             closingPeer.destroy();
-            $SD.sendToPropertyInspector(context,{closed:true},action);
+            SDApi.sendToPropertyInspector({closed:true});
         }
-        
+        peer_connected = false;
     }
 
     function onData(data) {
@@ -108,7 +124,7 @@ function pluginPeer(context,action) {
     }
 
     function peerSend(data) {
-        if (peer) {
+        if (peer && peer_connected) {
             return peer.send(JSON.stringify(data));
         }
     }
