@@ -57,13 +57,15 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
         button.value = label;
         button.innerHTML = label;
         button.onclick = clickEvent;
+        button.disabled = !!!clickEvent;
     }
 
     function copyAnswerClickEvent(ev) {
         if (answer1) {
 
             navigator.clipboard.writeText(btoa(JSON.stringify(answer1))).then(function() {
-                setupButton(labels.connected, null);
+            setupButton(labels.copyAnswer, null);
+
             });
         }
     }
@@ -72,6 +74,7 @@ function propertyInspectorPeer(button, action,context, uuid, labels) {
     function onConnect() {
         if (peer) {
             peer.on('data', onData);
+            setupButton(labels.connected, null);
         }
     }
 

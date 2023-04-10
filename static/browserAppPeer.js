@@ -41,6 +41,7 @@ function browserAppPeer(button, labels) {
         button.value = label;
         button.innerHTML = label;
         button.onclick = clickEvent;
+        button.disabled = !!!clickEvent;
     }
 
     function copyOfferClickEvent(ev) {
@@ -53,7 +54,7 @@ function browserAppPeer(button, labels) {
     }
 
     function pasteAnswerClickEvent(ev) {
-        navigator.clipboard.read().then(function(signalb64) {
+        navigator.clipboard.readText().then(function(signalb64) {
             try {
 
                 const signalData = JSON.parse(atob(signalb64));
