@@ -4,12 +4,12 @@ function browserAppPeer(button, labels) {
 
     labels = labels || {
         copyOffer:   "Connect",
-        pendingBlur : "click \"paste connection\" in streamdeck",
+        pendingBlur : "click \"Connect\" in streamdeck",
         pasteAnswer: "paste response",
         connected: "Disconnect"
     };
 
-    let tempPeer, peer, offerJSON;
+    let tempPeer, peer, offerJSON,clipboardBackup;
 
     const events = {
         data: [],
@@ -52,11 +52,22 @@ function browserAppPeer(button, labels) {
 
     function copyOfferClickEvent(ev) {
         if (offerJSON) {
-            navigator.clipboard.writeText(offerJSON).then(function() {
-                offerJSON = undefined;
-                setupButton(labels.pendingBlur, null);
-                window.addEventListener('blur',tempBlur);              
-            });
+
+            clipboardBackup=undefined;
+            navigator.clipboard.read().then(function(whatever) {
+                clipboardBackup=whatever;
+                continue=Regardless();
+            }).catch(continueRegardless);
+
+
+            function continueRegardless(){
+
+                navigator.clipboard.writeText(offerJSON).then(function() {
+                    offerJSON = undefined;
+                    setupButton(labels.pendingBlur, null);
+                    window.addEventListener('blur',tempBlur);              
+                });
+            }
         }
     }
  
@@ -84,7 +95,17 @@ function browserAppPeer(button, labels) {
                 }  
 
             } catch (e) {
+                if (clipboardBackup) {
+                    navigator.clipboard.write(clipboardBackup).then(function() {
+                        clipboardBackup=undefined;
+                    }).catch(function(){ clipboardBackup=undefined;});
+                }
+            }
 
+            if (clipboardBackup) {
+                navigator.clipboard.write(clipboardBackup).then(function() {
+                    clipboardBackup=undefined;
+                }).catch(function(){ clipboardBackup=undefined;});
             }
         });
     }
