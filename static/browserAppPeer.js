@@ -225,9 +225,7 @@ function browserAppPeer(button, labels) {
     }
 
     function peerClose() {
-        if (peer) {
-            peer.destroy();
-        }
+        onClose();
     }
 
 

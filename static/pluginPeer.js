@@ -37,15 +37,7 @@ function pluginPeer() {
                 $SD.sendToPropertyInspector(context,{answer:answer},action);
             });
             peer.on('data', onData);
-            peer.on('close', function(data) {
-                events.close.forEach(function(fn) {
-                    fn();
-                });
-                if (peer) {
-                    peer.destroy();
-                }
-                $SD.sendToPropertyInspector(context,{closed:true},action);
-            });
+            peer.on('close',onClose );
         }
 
         if (connected) {
@@ -64,6 +56,19 @@ function pluginPeer() {
             }
         }
 
+    }
+
+    function onClose() {
+        if (peer) {
+            events.close.forEach(function(fn) {
+                fn();
+            });
+            const closingPeer = peer;
+            peer = undefined;
+            closingPeer.destroy();
+            $SD.sendToPropertyInspector(context,{closed:true},action);
+        }
+        
     }
 
     function onData(data) {
