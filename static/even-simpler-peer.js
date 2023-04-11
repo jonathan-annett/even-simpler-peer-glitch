@@ -96,7 +96,8 @@ SOFTWARE.
 function evenSimplerPeer(headless) {
   
   let options = typeof headless === 'object'? headless : { headless : !!headless };
-  
+  const html = document.querySelector('html');
+    
   if (typeof headless==='undefined') {
     options = {
       target_origin : location.origin,
@@ -155,7 +156,6 @@ function evenSimplerPeer(headless) {
   iframe.onload = function () {
     
       const 
-      html = document.querySelector('html'),
       payload = { options:options };
 
       let param_id = location.search.replace(/^\?/,'').replace(/\&.*/,'');
