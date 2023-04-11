@@ -37,6 +37,32 @@ function evenSimplerPeer(headless) {
      message      : [],
      disconnected : []
   };
+
+   
+  const self =  {
+    
+    send :      sendToPeer,
+    
+    setPeerId : setPeerId,
+    
+    setTargetHref : setTargetHref, 
+    
+    on   : function (e,fn) {
+       if (typeof e + typeof fn ==='stringfunction' && events[e]) {
+          const ix = events[e].indexOf(fn);
+          if (ix<0) events[e].push(fn);
+       }
+    },
+    
+    off   : function (e,fn) {
+       if (typeof e + typeof fn ==='stringfunction' && events[e]) {
+          const ix = events[e].indexOf(fn);
+          if (ix>=0) events[e].splice(ix,1);
+       }
+    }
+    
+  };
+
   
   const iframe = document.createElement('iframe');
   
@@ -70,6 +96,12 @@ function evenSimplerPeer(headless) {
         const event = new MessageEvent("message", {
           data: data,
         });
+
+        if (data.connected && data.connected.peer_id && data.connected.own_id) {
+          self.peer_id = data.connected.peer_id;
+          self.own_id  = data.connected.own_id;
+        }
+
         window.dispatchEvent(event);
       };
       
@@ -77,6 +109,8 @@ function evenSimplerPeer(headless) {
         
         payload.own_id=param_id.substr(0,12);
         payload.peer_id=param_id.substr(12);
+        self.peer_id = payload.peer_id;
+        self.own_id  = payload.own_id;
 
         //setTimeout(location.replace.bind(location),250,payload.options.target_href);
     
@@ -127,29 +161,7 @@ function evenSimplerPeer(headless) {
       iframe.contentWindow.postMessage({target_href:href},target_origin);      
   }
   
- 
-  return {
-    
-    send :      sendToPeer,
-    
-    setPeerId : setPeerId,
-    
-    setTargetHref : setTargetHref, 
-    
-    on   : function (e,fn) {
-       if (typeof e + typeof fn ==='stringfunction' && events[e]) {
-          const ix = events[e].indexOf(fn);
-          if (ix<0) events[e].push(fn);
-       }
-    },
-    
-    off   : function (e,fn) {
-       if (typeof e + typeof fn ==='stringfunction' && events[e]) {
-          const ix = events[e].indexOf(fn);
-          if (ix>=0) events[e].splice(ix,1);
-       }
-    }
-    
-  };
+
+  return self;
   
 }
