@@ -67,10 +67,10 @@ function browserAppPeer(button, labels) {
         const sdp5 = sdp4.replace(/a=fingerprint\:sha-256.*(?=(\r|\n))/g,'');
 
         
-        const sdp5 = sdp4.replace(/\s*/g,'');
+        const sdp6 = sdp5.replace(/\s*/g,'');
 
-        sha256Hash(sdp5,function(err,digest){
-            console.log({sdp:sdp2.split('\r\n'),sdp4:sdp4.split('\r\n'),hash:digest.hex});
+        sha256Hash(sdp6,function(err,digest){
+            console.log({sdp:sdp2.split('\r\n'),sdp5:sdp5.split('\r\n'),hash:digest.hex});
         });
         
       
