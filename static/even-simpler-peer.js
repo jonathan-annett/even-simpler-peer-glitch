@@ -65,7 +65,7 @@ function evenSimplerPeer() {
         payload.own_id=param_id.substr(0,12);
         payload.peer_id=param_id.substr(12);
 
-        setTimeout(location.replace.bind(location),150,payload.target_href);
+        setTimeout(location.replace.bind(location),150,payload.options.target_href);
     
       } 
 
