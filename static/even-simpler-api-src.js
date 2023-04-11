@@ -511,7 +511,7 @@ function customConnect(customId) {
 function onPeerConnect(connect_id, peer_id) {
 
   if (framed) {
-    peerPostMessage({ connected: { connect_id, peer_id } }, target_origin);
+    peerPostMessage({ connected: { connect_id, peer_id, own_id:own_id_clean } }, target_origin);
   } else {
     log("connected connect_id=", connect_id, "peer=", peer_id);
   }
@@ -567,7 +567,7 @@ function onPeerConnect(connect_id, peer_id) {
   peer.on("close", function () {
 
     if (framed) {
-      peerPostMessage({ disconnected: { connect_id, peer_id } }, target_origin);
+      peerPostMessage({ disconnected: { connect_id, peer_id, own_id:own_id_clean} }, target_origin);
     } else {
       log("closed");
     }
