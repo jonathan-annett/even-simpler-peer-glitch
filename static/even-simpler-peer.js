@@ -69,7 +69,7 @@ function evenSimplerPeer() {
     
       } 
 
-      window.peerInfo = function(x){
+      window.peerInfo = window.peerInfo || function(x){
         peerInfo.db = x;
       };
 
