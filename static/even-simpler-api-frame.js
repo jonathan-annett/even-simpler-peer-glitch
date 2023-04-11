@@ -153,16 +153,6 @@ peer.on("error", function (err) {
   setTimeout(location.reload.bind(location), 1000);
 });
 
-let prior_peer = sessionStorage.getItem("peer-id");
-if (prior_peer) {
-  enter_peer_id.value = prior_peer;
-  setTimeout(peer_id_changed, 500);
-} else {
-  enter_peer_id.onkeyup = peer_id_changed;
-  //enter_peer_id.oninput  = peer_id_changed;
-  enter_peer_id.onchange = peer_id_changed;
-}
-
 
 function updateFrameIUOptions(opt){
 
