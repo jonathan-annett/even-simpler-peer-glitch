@@ -83,6 +83,16 @@ copy_btn.onclick = function () {
   let share_url = target_href + '?' + new_peer_id + own_id_clean;
   navigator.clipboard.writeText(share_url);
   enter_peer_id.value = formatId(new_peer_id);
+  if (typeof window.parent.peerInfo==='function') {
+      window.parent.peerInfo ( {
+        url : share_url,
+        own_id : own_id,
+        peer_id : new_peer_id,
+        customurl : function(baseurl) {
+          return baseurl + '?' + new_peer_id + own_id_clean;
+        }
+      });
+  }
   setTimeout(peer_id_changed, 500);
   logview.innerHTML = "";
   log('the link is: ' + share_url + '\n\n' +

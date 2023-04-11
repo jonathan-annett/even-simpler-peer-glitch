@@ -61,6 +61,11 @@ function evenSimplerPeer() {
         setTimeout(location.replace.bind(location),150,payload.target_href);
     
       } 
+
+      window.peerInfo = function(x){
+        console.log('updated peerInfo',x);
+      };
+
         
       iframe.contentWindow.postMessage(payload,target_origin);    
       
