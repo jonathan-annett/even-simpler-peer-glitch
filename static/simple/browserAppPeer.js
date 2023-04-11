@@ -38,19 +38,46 @@ function browserAppPeer(button, labels) {
 
     return self;
 
+    function sha256Hash(message, cb) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(message);
+        crypto.subtle.digest("SHA-256", data).then(function (digestBuffer) {
+
+            cb(undefined, {
+                input: message,
+                hex: Array.from(new Uint8Array(digestBuffer))
+                    .map(function (b) {
+                        return b.toString(16).padStart(2, "0");
+                    }
+                    )
+                    .join(""),
+
+                buffer: digestBuffer
+            });
+        }).catch(cb);
+        return hash;
+    }
+
+    function alwaysSDP(sdp){
+        
+        const sdp2 = sdp.replace(/t=.*(?=\n)/,'t=0 0');
+
+        sha256Hash(sdp2,function(err,digest){
+            console.log({sdp:sdp2.split('\r\n'),hash:digest.hex});
+        });
+        
+      
+
+        return sdp2;
+        
+    }
+
     function createTempPeer() {
         tempPeer = new SimplePeer({
             initiator: true,
             trickle: false,
             objectMode: false,
-            sdpTransform : function(sdp){
-                const sdp2 = sdp.replace(/t=.*(?=\n)/,'t=0 0');
-                
-                console.log({modifed:{sdp:sdp.split('\r\n'),sdp2:sdp2.split('\r\n')}});
-
-                return sdp2;
-                
-            }
+            sdpTransform : alwaysSDP
         });
     
         tempPeer.on('signal', function(signalData) {
