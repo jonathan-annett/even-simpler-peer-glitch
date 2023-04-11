@@ -51,6 +51,11 @@ function getEl(EL,el) {
     Object.keys(backup.style).forEach(function(key){
       el.style[key] = backup.style[key];
     });
+    Object.keys(backup).forEach(function(fn){
+      if (typeof backup[fn]==='function'){ 
+         el[fn] = backup[fn];
+      }
+    });
   }
   return el;
 }
