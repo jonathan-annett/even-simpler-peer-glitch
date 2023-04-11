@@ -63,7 +63,7 @@ function browserAppPeer(button, labels) {
         const sdp2 = sdp.replace(/t=.*(?=(\r|\n))/g,'t=0 0');
 
         const sdp3 = sdp2.replace(/a=ice-ufrag\:.*(?=(\r|\n))/g,'');
-        const sdp4 = sdp3.replace(/a=ice-pwd:\:.*(?=(\r|\n))/g,'');
+        const sdp4 = sdp3.replace(/a=ice-pwd\:.*(?=(\r|\n))/g,'');
         const sdp5 = sdp4.replace(/\s*/g,'');
 
         sha256Hash(sdp5,function(err,digest){
