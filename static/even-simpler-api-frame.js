@@ -72,7 +72,7 @@ reset_btn.onclick = function () {
   location.reload();
 };
 
-copy_btn.onclick = function () {
+copy_btn.onclick = function (ev) {
   sessionStorage.clear();
   let new_peer_id = cleanupId(inventId());
   sessionStorage.clear();
@@ -82,6 +82,8 @@ copy_btn.onclick = function () {
 
   savePeerId(new_peer_id);
   let share_url = target_href + '?' + new_peer_id + own_id_clean;
+  let self_url  = ev.shiftKey ? target_href + '?' + own_id_clean + new_peer_id : undefined;
+  
   navigator.clipboard.writeText(share_url);
   enter_peer_id.value = formatId(new_peer_id);
   if (typeof window.parent.peerInfo==='function') {
@@ -94,13 +96,19 @@ copy_btn.onclick = function () {
         }
       });
   }
-  setTimeout(peer_id_changed, 500);
+ 
   logview.innerHTML = "";
   log('the link is: ' + share_url + '\n\n' +
     'it has been copied to the clipboard.\n\n' +
     'send it to the other device (via email/sms/dm )\n\n' +
     'and open it there to link the devices'
   );
+
+  if (self_url) {
+    setTimeout(location.replace, 500, self_url);
+  } else {
+    setTimeout(peer_id_changed, 500);
+  }
 }
 
 qr_btn.onclick = function (e) {
