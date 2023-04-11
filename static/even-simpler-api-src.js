@@ -49,12 +49,12 @@ let target_href = location.href.replace(/\?.*/, '');
 let share_url;
 const framed = (window.location !== window.parent.location);
 
-let peerPostMessage = function(ev) {
+let peerPostMessage = function(data) {
  
    if (typeof window.parent.peerPostMessage === 'function') {
       try {
 
-        window.parent.peerPostMessage(ev.data);
+        window.parent.peerPostMessage(data);
         peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
 
       } catch( e) {
