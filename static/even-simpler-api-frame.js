@@ -105,7 +105,7 @@ copy_btn.onclick = function (ev) {
   );
 
   if (self_url) {
-    setTimeout(location.replace.bind(location.replace), 500, self_url);
+    setTimeout(location.replace.bind(location), 500, self_url);
   } else {
     setTimeout(peer_id_changed, 500);
   }
