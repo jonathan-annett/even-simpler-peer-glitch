@@ -50,13 +50,7 @@ const framed = (window.location !== window.parent.location);
 
 
 let peerPostMessage = function(ev) {
-  try {
-     
-    window.parent.postMessage (ev.data);
-    peerPostMessage = window.parent.postMessage.bind(window.parent);
-
-  } catch (e) {
-
+ 
    if (typeof window.parent.peerPostMessage === 'function') {
       try {
 
@@ -66,12 +60,10 @@ let peerPostMessage = function(ev) {
       } catch( e) {
        console.log(e);
       }
-
-   } else {
-     console.log(e);
    }
+    
    
-  }
+  
 };
 
 function log() {
