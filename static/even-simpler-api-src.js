@@ -217,39 +217,7 @@ function formatId(id) {
   return id;
 }
 
-function peer_id_changed(ev) {
-  if (ev && ev.key === "Backspace") return;
 
-  let peer_id = cleanupId(enter_peer_id.value);
-  let id = formatId(enter_peer_id.value);
-
-  enter_peer_id.value = id;
-
-  if (validateId(peer_id)) {
-    if (peer_id === own_id_clean) {
-      log("can't connect to the same browser!");
-      enter_peer_id.style.backgroundColor = "red";
-    } else {
-      enter_peer_id.onkeyup = null;
-      enter_peer_id.oninput = null;
-      enter_peer_id.onchange = null;
-
-      savePeerId(peer_id);
-
-      if (Number(peer_id) < Number(own_id_clean)) {
-        log("listening for peer connect");
-        listenForPeer();
-      } else {
-        log("connecting to peer");
-        connectToPeer();
-      }
-      enter_peer_id.style.backgroundColor = "lime";
-    }
-  } else {
-    enter_peer_id.style.backgroundColor =
-      peer_id.length === 3 + 4 + 5 ? "red" : "white";
-  }
-}
 
 function sendToPeer(data) {
   peer.send(o2j(data));
