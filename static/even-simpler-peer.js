@@ -100,15 +100,15 @@ function evenSimplerPeer(headless) {
     
   if (typeof headless==='undefined') {
     options = {
-      target_origin : location.origin,
-      target_href   : location.href.replace(/\?.*/,''),
-      manual: html.classList.contains('peer-manual'),
-      scan: html.classList.contains('peer-scan'),
-      qr : html.classList.contains('peer-qr'),
-      link : html.classList.contains('peer-link'),
-      custom: html.classList.contains('peer-custom') ? 'copy' : false,
-      headless : false
-    }
+        target_origin : location.origin,
+        target_href   : location.href.replace(/\?.*/,''),
+        manual        : html.classList.contains('peer-manual'),
+        scan          : html.classList.contains('peer-scan'),
+        qr            : html.classList.contains('peer-qr'),
+        link          : html.classList.contains('peer-link'),
+        custom        : html.classList.contains('peer-custom') ? 'copy' : false,
+        headless      : false
+    };
   }
   
   const domain        = "even-simpler-peer.glitch.me";
@@ -234,3 +234,63 @@ function evenSimplerPeer(headless) {
   return self;
   
 }
+
+
+
+evenSimplerPeer.inventId = 
+function inventId() {
+  
+  let id = randomId();
+
+  let result = id + evenSimplerPeer.checkDigit(id);
+
+  return result;
+
+  function randomId() {
+    const R = function (n) {
+      n = n || 3;
+      let r = Math.floor(Math.random() * 1000000);
+      return ("0000" + r.toString()).slice(0 - n);
+    };
+  
+    return `${R(3)}-${R(4)}-${R(4)}`;
+  
+  }
+};
+
+evenSimplerPeer.cleanupId =
+function cleanupId(id) {
+  return id
+    .split("")
+    .filter(function (n) {
+      return n >= "0" && n <= "9";
+    })
+    .join("");
+};
+
+evenSimplerPeer.checkDigit =
+function checkDigit(id) {
+  let digits = evenSimplerPeer.cleanupId(id)
+    .split("")
+    .map(function (n) {
+      return Number(n);
+    });
+
+  let check =
+    digits.reduce(function (a, n) {
+      return a + n;
+    }, 0) % 10;
+
+  return check.toString();
+};
+
+evenSimplerPeer.validateId =
+function validateId(id) {
+  if (typeof id === "string" && id.length >= 3 + 4 + 5) {
+    id = id.trim();
+    let check = evenSimplerPeer.checkDigit(id.substring(0, id.length - 1));
+    return id.endsWith(check);
+  }
+  return false;
+}
+
