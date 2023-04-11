@@ -30,7 +30,7 @@ let peer;
 
 document.body.onload=function(){
 
-    peer = evenSimplerPeer();
+    peer = evenSimplerPeer(true);
 
     let peerSend = function (msg) {
     peer.send(msg);
