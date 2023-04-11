@@ -26,10 +26,10 @@ SOFTWARE.
 
 /* global SimplePeer */
 
-function evenSimplerPeer() {
+function evenSimplerPeer(headless) {
   
   const domain        = "even-simpler-peer.glitch.me";
-  const iframe_url    = `https://${domain}/api`;
+  const iframe_url    = headless ? `https://${domain}/even-simpler-api-headless.html` : `https://${domain}/api`;
   const target_origin = `https://${domain}/`;
   
   const events = {
