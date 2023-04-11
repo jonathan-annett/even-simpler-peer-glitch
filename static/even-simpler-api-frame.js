@@ -37,7 +37,7 @@ getEl('qr_btn',  document.querySelector('#qr_btn'));
 getEl('custom_btn',  document.querySelector('#custom_btn'));
 getEl('scan_btn',  document.querySelector('#scan_btn'));
 
-getEl('qrCode'. document.querySelector("#qrcode"));
+getEl('qrCode', document.querySelector("#qrcode"));
 
 function getEl(EL,el) {
   const backup = window[EL];
