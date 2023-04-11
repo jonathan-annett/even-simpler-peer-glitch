@@ -33,7 +33,7 @@ window.document_createElement = function(){
   // create fake elements for headless mode
   const dummy ={appendChild:function(){},style:{}};
   dummy.parent = dummy;
-  parentElement = dumy;
+  parentElement = dummy;
   return dummy;
 };
 window.enter_peer_id = {style:{}};
