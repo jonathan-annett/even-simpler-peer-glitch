@@ -26,18 +26,34 @@ SOFTWARE.
 */
 
 
-window.enter_peer_id = document.querySelector("#enter_peer_id");
-window.show_own_id = document.querySelector("#show_own_id");
-window.connections = document.querySelector("#connections");
-window.connect_info = document.querySelector("#connect_info");
-window.logview = document.querySelector("#log");
-window.reset_btn = document.querySelector('#reset_btn');
-window.copy_btn = document.querySelector('#copy_btn');
-window.qr_btn = document.querySelector('#qr_btn');
-window.custom_btn = document.querySelector('#custom_btn');
-window.scan_btn = document.querySelector('#scan_btn');
+getEl('enter_peer_id',  document.querySelector("#enter_peer_id"));
+getEl('show_own_id',  document.querySelector("#show_own_id"));
+getEl('connections',  document.querySelector("#connections"));
+getEl('connect_info',  document.querySelector("#connect_info"));
+getEl('logview',  document.querySelector("#log"));
+getEl('reset_btn',  document.querySelector('#reset_btn'));
+getEl('copy_btn',  document.querySelector('#copy_btn'));
+getEl('qr_btn',  document.querySelector('#qr_btn'));
+getEl('custom_btn',  document.querySelector('#custom_btn'));
+getEl('scan_btn',  document.querySelector('#scan_btn'));
 
-window.qrCode = document.querySelector("#qrcode");
+getEl('qrCode'. document.querySelector("#qrcode"));
+
+function getEl(EL,el) {
+  const backup = window[EL];
+  window[EL]=el;
+  if (backup) {
+    if (typeof backup.value ==='string') 
+       el.value = backup.value;
+    if (typeof backup.innerHTML==='string') {
+       el.innerHTML = backup.innerHTML;
+    }
+    Object.keys(backup.style).forEach(function(key){
+      el.style[key] = backup.style[key];
+    });
+  }
+  return el;
+}
 
 window.log = function log() {
   //if (framed) return;

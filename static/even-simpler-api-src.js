@@ -30,17 +30,17 @@ const o2j = JSON.stringify.bind(JSON), j2o = JSON.parse.bind(JSON);
 const baseurl = location.origin.replace(/\/$/, "") + "/api";
 let own_id = inventId(), own_id_clean = cleanupId(own_id);
 
-window.enter_peer_id = {value:"",innerHTML:"",style:{}};
-window.show_own_id = {value:"",innerHTML:"",style:{}};
-window.connections  = {value:"",innerHTML:"",style:{}};
-window.connect_info  = {value:"",innerHTML:"",style:{}};
-window.logview  = {value:"",innerHTML:"",style:{}};
-window.reset_btn  = {value:"",innerHTML:"",style:{}};
-window.copy_btn  = {value:"",innerHTML:"",style:{}};
-window.qr_btn  = {value:"",innerHTML:"",style:{}};
-window.custom_btn  = {value:"",innerHTML:"",style:{}};
-window.scan_btn  = {value:"",innerHTML:"",style:{}};
-window.qrCode  = {value:"",innerHTML:"",style:{}};
+window.enter_peer_id = {style:{}};
+window.show_own_id = {style:{}};
+window.connections  = {style:{}};
+window.connect_info  = {style:{}};
+window.logview  = {style:{}};
+window.reset_btn  = {style:{}};
+window.copy_btn  = {style:{}};
+window.qr_btn  = {style:{}};
+window.custom_btn  = {style:{}};
+window.scan_btn  = {style:{}};
+window.qrCode  = {style:{}};
 
 window.peer_id_changed = function(){};
 
