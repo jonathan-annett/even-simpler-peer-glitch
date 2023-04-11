@@ -74,7 +74,7 @@ function evenSimplerPeer(headless) {
         payload.own_id=param_id.substr(0,12);
         payload.peer_id=param_id.substr(12);
 
-        setTimeout(location.replace.bind(location),250,payload.options.target_href);
+        //setTimeout(location.replace.bind(location),250,payload.options.target_href);
     
       } 
       iframe.contentWindow.postMessage(payload,target_origin);  
