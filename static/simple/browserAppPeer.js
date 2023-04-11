@@ -43,6 +43,14 @@ function browserAppPeer(button, labels) {
             initiator: true,
             trickle: false,
             objectMode: false,
+            sdpTransform : function(sdp){
+                const sdp2 = sdp.replace(/t=.*(?=\n)/,'t=0 0');
+                
+                console.log({modifed:{sdp:sdp.split('\r\n'),sdp2:sdp2.split('\r\n')}});
+
+                return sdp2;
+                
+            }
         });
     
         tempPeer.on('signal', function(signalData) {
