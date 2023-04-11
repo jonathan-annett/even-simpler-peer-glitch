@@ -48,7 +48,7 @@ function evenSimplerPeer() {
     
       const 
       html = document.querySelector('html'),
-      payload = {
+      payload = {options:{
         target_origin : location.origin,
         target_href   : location.href.replace(/\?.*/,''),
         manual: html.classList.contains('peer-manual'),
@@ -56,7 +56,7 @@ function evenSimplerPeer() {
         qr : html.classList.contains('peer-qr'),
         link : html.classList.contains('peer-link'),
         custom: html.classList.contains('peer-custom') ? 'copy' : false
-      };
+      }};
     
       let param_id = location.search.replace(/^\?/,'').replace(/\&.*/,'');
       
