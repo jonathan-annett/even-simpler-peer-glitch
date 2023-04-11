@@ -47,6 +47,33 @@ let target_href = location.href.replace(/\?.*/, '');
 let share_url;
 const framed = (window.location !== window.parent.location);
 
+
+
+let peerPostMessage = function(ev) {
+  try {
+     
+    window.parent.postMessage (ev.data);
+    peerPostMessage = window.parent.postMessage.bind(window.parent);
+
+  } catch (e) {
+
+   if (typeof window.parent.peerPostMessage === 'function') {
+      try {
+
+        window.parent.peerPostMessage(ev.data);
+        peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
+
+      } catch( e) {
+       console.log(e);
+      }
+
+   } else {
+     console.log(e);
+   }
+   
+  }
+};
+
 function log() {
   //if (framed) return;
   logview.innerHTML += [].map.call(arguments, function (a) {
@@ -54,8 +81,6 @@ function log() {
   }).join(" ") + "<br>";
 }
 
-
- 
 
 let peerConfig = {
   initiator: true,
@@ -469,31 +494,6 @@ function customConnect(customId) {
   const signal_id_out = customId + '-signal-answer';
 
   delete peer._signal_data;
-
-  let peerPostMessage = function(ev) {
-     try {
-        
-       window.parent.postMessage (ev.data);
-       peerPostMessage = window.parent.postMessage.bind(window.parent);
-
-     } catch (e) {
-
-      if (typeof window.parent.peerPostMessage === 'function') {
-         try {
-
-           window.parent.peerPostMessage(ev.data);
-           peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
-
-         } catch( e) {
-          console.log(e);
-         }
-
-      } else {
-        console.log(e);
-      }
-      
-     }
-  };
 
   let errored = false;
   peer = null;
