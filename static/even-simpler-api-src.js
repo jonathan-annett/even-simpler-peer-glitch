@@ -32,7 +32,7 @@ let own_id = inventId(), own_id_clean = cleanupId(own_id);
 
 window.enter_peer_id = {style:{}};
 window.show_own_id = {style:{}};
-window.connections  = {style:{}};
+window.connections  = {style:{},appendChild:function(){}};
 window.connect_info  = {style:{}};
 window.logview  = {style:{}};
 window.reset_btn  = {style:{}};
