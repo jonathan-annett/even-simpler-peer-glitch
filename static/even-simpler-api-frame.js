@@ -27,17 +27,17 @@ SOFTWARE.
 
 
 window.enter_peer_id = document.querySelector("#enter_peer_id");
-const show_own_id = document.querySelector("#show_own_id");
-const connections = document.querySelector("#connections");
-const connect_info = document.querySelector("#connect_info");
-const logview = document.querySelector("#log");
-const reset_btn = document.querySelector('#reset_btn');
-const copy_btn = document.querySelector('#copy_btn');
-const qr_btn = document.querySelector('#qr_btn');
-const custom_btn = document.querySelector('#custom_btn');
-const scan_btn = document.querySelector('#scan_btn');
+window.show_own_id = document.querySelector("#show_own_id");
+window.connections = document.querySelector("#connections");
+window.connect_info = document.querySelector("#connect_info");
+window.logview = document.querySelector("#log");
+window.reset_btn = document.querySelector('#reset_btn');
+window.copy_btn = document.querySelector('#copy_btn');
+window.qr_btn = document.querySelector('#qr_btn');
+window.custom_btn = document.querySelector('#custom_btn');
+window.scan_btn = document.querySelector('#scan_btn');
 
-const qrCode = document.querySelector("#qrcode");
+window.qrCode = document.querySelector("#qrcode");
 
 window.log = function log() {
   //if (framed) return;
@@ -142,47 +142,7 @@ custom_btn.onclick = function () {
   customConnect(customId); */
 }
 
-
 show_own_id.innerHTML = formatId(own_id);
-peer.on("signal", function (data) {
-  peer._signal_data = data;
-});
-
-peer.on("error", function (err) {
-  log("error", err);
-  setTimeout(location.reload.bind(location), 1000);
-});
-
-
-function updateFrameIUOptions(opt){
-
-  if (opt) {
-
-    if (opt.target_href) {
-      target_href = opt.target_href;
-    }
-    
-    // truthy options will display the associated buttons
-    reset_btn.style.display = !!opt.manual ? "inline-block" : "none";
-    copy_btn.style.display = !!opt.link ? "inline-block" : "none";
-    qr_btn.style.display = !!opt.qr ? "inline-block" : "none";
-    custom_btn.style.display = !!opt.custom ? "inline-block" : "none";
-    scan_btn.style.display = !!opt.scan ? "inline-block" : "none";
-
-    // opt.custom can be true (meaning use the default label of "Custom")
-    // or a string which supplies the label
-    if (typeof opt.custom === 'string') {
-      custom_btn.value = opt.custom;
-      custom_btn.innerHTML = opt.custom;
-
-    }
-
-  }
-
- 
-
-}
-
  
 window. peer_id_changed = function peer_id_changed(ev) {
   if (ev && ev.key === "Backspace") return;

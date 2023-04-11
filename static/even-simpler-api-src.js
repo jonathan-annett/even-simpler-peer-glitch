@@ -30,20 +30,32 @@ const o2j = JSON.stringify.bind(JSON), j2o = JSON.parse.bind(JSON);
 const baseurl = location.origin.replace(/\/$/, "") + "/api";
 let own_id = inventId(), own_id_clean = cleanupId(own_id);
 
+window.enter_peer_id = {value:"",innerHTML:"",style:{}};
+window.show_own_id = {value:"",innerHTML:"",style:{}};
+window.connections  = {value:"",innerHTML:"",style:{}};
+window.connect_info  = {value:"",innerHTML:"",style:{}};
+window.logview  = {value:"",innerHTML:"",style:{}};
+window.reset_btn  = {value:"",innerHTML:"",style:{}};
+window.copy_btn  = {value:"",innerHTML:"",style:{}};
+window.qr_btn  = {value:"",innerHTML:"",style:{}};
+window.custom_btn  = {value:"",innerHTML:"",style:{}};
+window.scan_btn  = {value:"",innerHTML:"",style:{}};
+window.qrCode  = {value:"",innerHTML:"",style:{}};
+
+window.peer_id_changed = function(){};
+
 let target_origin = location.origin;
 let target_href = location.href.replace(/\?.*/, '');
 let share_url;
 const framed = (window.location !== window.parent.location);
 
-window.enter_peer_id = window.enter_peer_id || { value : "", style : {} };
-
-window.peerPostMessage = function(ev) {
+let peerPostMessage = function(ev) {
  
    if (typeof window.parent.peerPostMessage === 'function') {
       try {
 
         window.parent.peerPostMessage(ev.data);
-        window.peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
+        peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
 
       } catch( e) {
        console.log(e);
@@ -54,17 +66,12 @@ window.peerPostMessage = function(ev) {
   
 };
 
-window.log = window.log || function log() {
+window.log = function log() {
   //if (framed) return;
-  console.log( [].map.call(arguments, function (a) {
+  console.log([].map.call(arguments, function (a) {
     return a ? a.toString() : "";
   }).join(" ") );
 };
-
-window.peer_id_changed = window.peer_id_changed || function peer_id_changed(ev) {
-
-};
-
 
 let peerConfig = {
   initiator: true,
@@ -75,9 +82,10 @@ let peerConfig = {
 let peer = new SimplePeer(peerConfig);
 
 
- 
 if (framed) {
+
   window.addEventListener('message', onFrameMessage);
+
 }
 
 show_own_id.innerHTML = formatId(own_id);
@@ -91,6 +99,7 @@ peer.on("error", function (err) {
 });
 
 let prior_peer = sessionStorage.getItem("peer-id");
+
 if (prior_peer) {
   enter_peer_id.value = prior_peer;
   setTimeout(peer_id_changed, 500);
@@ -122,12 +131,25 @@ function onFrameMessage(event) {
   const opt = event.data.options;
   if (opt) {
 
+
+
     if (opt.target_href) {
       target_href = opt.target_href;
     }
+    
+    // truthy options will display the associated buttons
+    reset_btn.style.display = !!opt.manual ? "inline-block" : "none";
+    copy_btn.style.display = !!opt.link ? "inline-block" : "none";
+    qr_btn.style.display = !!opt.qr ? "inline-block" : "none";
+    custom_btn.style.display = !!opt.custom ? "inline-block" : "none";
+    scan_btn.style.display = !!opt.scan ? "inline-block" : "none";
 
-    if (window.updateFrameIUOptions) {
-        window.updateFrameIUOptions(opt);
+    // opt.custom can be true (meaning use the default label of "Custom")
+    // or a string which supplies the label
+    if (typeof opt.custom === 'string') {
+      custom_btn.value = opt.custom;
+      custom_btn.innerHTML = opt.custom;
+
     }
 
   }
@@ -195,7 +217,40 @@ function formatId(id) {
   return id;
 }
 
- 
+function peer_id_changed(ev) {
+  if (ev && ev.key === "Backspace") return;
+
+  let peer_id = cleanupId(enter_peer_id.value);
+  let id = formatId(enter_peer_id.value);
+
+  enter_peer_id.value = id;
+
+  if (validateId(peer_id)) {
+    if (peer_id === own_id_clean) {
+      log("can't connect to the same browser!");
+      enter_peer_id.style.backgroundColor = "red";
+    } else {
+      enter_peer_id.onkeyup = null;
+      enter_peer_id.oninput = null;
+      enter_peer_id.onchange = null;
+
+      savePeerId(peer_id);
+
+      if (Number(peer_id) < Number(own_id_clean)) {
+        log("listening for peer connect");
+        listenForPeer();
+      } else {
+        log("connecting to peer");
+        connectToPeer();
+      }
+      enter_peer_id.style.backgroundColor = "lime";
+    }
+  } else {
+    enter_peer_id.style.backgroundColor =
+      peer_id.length === 3 + 4 + 5 ? "red" : "white";
+  }
+}
+
 function sendToPeer(data) {
   peer.send(o2j(data));
 }
