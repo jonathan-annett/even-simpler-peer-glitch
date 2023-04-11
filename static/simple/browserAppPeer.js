@@ -60,14 +60,14 @@ function browserAppPeer(button, labels) {
 
     function alwaysSDP(sdp){
 
-        const sdp2 = sdp.replace(/t=.*(?=\n)/,'t=0 0');
+        const sdp2 = sdp.replace(/t=.*(?=(\r|\n))/g,'t=0 0');
 
-        const sdp3 = sdp2.replace(/a=ice-ufrag\:.*(?=\n)/,'');
-        const sdp4 = sdp3.replace(/a=ice-pwd:\:.*(?=\n)/,'');
+        const sdp3 = sdp2.replace(/a=ice-ufrag\:.*(?=(\r|\n))/g,'');
+        const sdp4 = sdp3.replace(/a=ice-pwd:\:.*(?=(\r|\n))/g,'');
         const sdp5 = sdp4.replace(/\s*/g,'');
 
         sha256Hash(sdp5,function(err,digest){
-            console.log({sdp:sdp2.split('\r\n'),sdp2:sdp4.split('\r\n'),hash:digest.hex});
+            console.log({sdp:sdp2.split('\r\n'),sdp4:sdp4.split('\r\n'),hash:digest.hex});
         });
         
       
