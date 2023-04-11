@@ -106,7 +106,7 @@ var routes = function (app) {
     }
         
   });
-
+/*
   app.post('/git', (req, res) => {
     const hmac = crypto.createHmac('sha1', process.env.SECRET);
     const sig  = 'sha1=' + hmac.update(JSON.stringify(req.body)).digest('hex');
@@ -130,7 +130,7 @@ var routes = function (app) {
     }
   });
   
-  
+  */
   
   function numKeyCleanup () {
     if (numKeyCleanup.timeout) {

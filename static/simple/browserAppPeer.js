@@ -55,11 +55,11 @@ function browserAppPeer(button, labels) {
                 buffer: digestBuffer
             });
         }).catch(cb);
-        return hash;
+         
     }
 
     function alwaysSDP(sdp){
-        
+
         const sdp2 = sdp.replace(/t=.*(?=\n)/,'t=0 0');
 
         sha256Hash(sdp2,function(err,digest){
