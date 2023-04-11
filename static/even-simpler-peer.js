@@ -65,7 +65,7 @@ function evenSimplerPeer(headless) {
       };
 
       window.peerPostMessage = function(data){
-        const event = new CustomEvent("message", { data: data });
+        const event = new CustomEvent("message",  data );
         window.dispatchEvent(event);
       };
       
