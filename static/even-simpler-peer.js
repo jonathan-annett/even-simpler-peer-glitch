@@ -59,26 +59,29 @@ function evenSimplerPeer() {
       }};
     
       let param_id = location.search.replace(/^\?/,'').replace(/\&.*/,'');
+
+      window.peerInfo = window.peerInfo || function(x){
+        peerInfo.db = x;
+      };
+
+      window.peerPostMessage = function(data){
+        const event = new CustomEvent("message", { data: data });
+        window.dispatchEvent(event);
+      };
       
       if (param_id && param_id.length===24) {
         
         payload.own_id=param_id.substr(0,12);
         payload.peer_id=param_id.substr(12);
 
-        setTimeout(location.replace.bind(location),150,payload.options.target_href);
+        setTimeout(location.replace.bind(location),250,payload.options.target_href);
     
       } 
+      iframe.contentWindow.postMessage(payload,target_origin);  
 
-      window.peerInfo = window.peerInfo || function(x){
-        peerInfo.db = x;
-      };
-
-      window.peerPostMessage =function(data){
-        const event = new CustomEvent("message", { data: data });
-        window.dispatchEvent(event);
-      };
+     
       
-      iframe.contentWindow.postMessage(payload,target_origin);    
+       
       
   };
   
