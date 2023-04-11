@@ -54,8 +54,8 @@ var routes = function (app) {
             delete polled.send;
            
             delete numkey_poll[req.body.set.id];
-            //delete numkeys[req.body.set.id].data;
-            //delete numkeys[req.body.set.id];
+            delete numkeys[req.body.set.id].data;
+            delete numkeys[req.body.set.id];
             console.log("post.set sent to polled get:",req.body.set.id);
             return res.send("\"sent\"");
          }
@@ -78,8 +78,8 @@ var routes = function (app) {
          if (query) {
            res.send(query.data);
            console.log("post.get:",id);
-           //delete query.data;
-           //delete numkeys[id];
+           delete query.data;
+           delete numkeys[id];
            return;
          }
 
