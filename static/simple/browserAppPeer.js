@@ -67,7 +67,7 @@ function browserAppPeer(button, labels) {
         const sdp5 = sdp4.replace(/\s*/g,'');
 
         sha256Hash(sdp5,function(err,digest){
-            console.log({sdp:sdp2.split('\r\n'),sdp:sdp4.split('\r\n'),hash:digest.hex});
+            console.log({sdp:sdp2.split('\r\n'),sdp2:sdp4.split('\r\n'),hash:digest.hex});
         });
         
       
