@@ -61,6 +61,10 @@ window.log = window.log || function log() {
   }).join(" ") );
 };
 
+window.peer_id_changed = window.peer_id_changed || function peer_id_changed(ev) {
+
+};
+
 
 let peerConfig = {
   initiator: true,

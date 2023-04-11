@@ -194,7 +194,7 @@ function updateFrameIUOptions(opt){
 }
 
  
-function peer_id_changed(ev) {
+window. peer_id_changed = function peer_id_changed(ev) {
   if (ev && ev.key === "Backspace") return;
 
   let peer_id = cleanupId(enter_peer_id.value);
@@ -226,7 +226,7 @@ function peer_id_changed(ev) {
     enter_peer_id.style.backgroundColor =
       peer_id.length === 3 + 4 + 5 ? "red" : "white";
   }
-}
+};
 
 
 
