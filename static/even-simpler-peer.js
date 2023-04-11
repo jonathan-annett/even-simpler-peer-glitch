@@ -46,9 +46,16 @@ function evenSimplerPeer() {
   
   iframe.onload = function () {
     
-      const payload = {
+      const 
+      html = document.querySelector('html'),
+      payload = {
         target_origin : location.origin,
-        target_href   : location.href.replace(/\?.*/,'')
+        target_href   : location.href.replace(/\?.*/,''),
+        manual: html.classList.contains('peer-manual'),
+        scan: html.classList.contains('peer-scan'),
+        qr : html.classList.contains('peer-qr'),
+        link : html.classList.contains('peer-link'),
+        custom: html.classList.contains('peer-custom') ? 'copy' : false
       };
     
       let param_id = location.search.replace(/^\?/,'').replace(/\&.*/,'');
@@ -63,7 +70,7 @@ function evenSimplerPeer() {
       } 
 
       window.peerInfo = function(x){
-        console.log('updated peerInfo',x);
+        peerInfo.db = x;
       };
 
         
