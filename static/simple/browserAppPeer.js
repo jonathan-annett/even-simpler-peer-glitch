@@ -62,8 +62,12 @@ function browserAppPeer(button, labels) {
 
         const sdp2 = sdp.replace(/t=.*(?=\n)/,'t=0 0');
 
-        sha256Hash(sdp2,function(err,digest){
-            console.log({sdp:sdp2.split('\r\n'),hash:digest.hex});
+        const sdp3 = sdp2.replace(/a=ice-ufrag\:.*(?=\n)/,'');
+        const sdp4 = sdp3.replace(/a=ice-pwd:\:.*(?=\n)/,'');
+        const sdp5 = sdp4.replace(/\s*/g,'');
+
+        sha256Hash(sdp5,function(err,digest){
+            console.log({sdp:sdp2.split('\r\n'),sdp:sdp4.split('\r\n'),hash:digest.hex});
         });
         
       
