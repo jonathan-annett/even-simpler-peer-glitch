@@ -29,7 +29,13 @@ const o2j = JSON.stringify.bind(JSON), j2o = JSON.parse.bind(JSON);
 
 const baseurl = location.origin.replace(/\/$/, "") + "/api";
 let own_id = inventId(), own_id_clean = cleanupId(own_id);
-
+window.document_createElement = function(){ 
+  // create fake elements for headless mode
+  const dummy ={appendChild:function(){},style:{}};
+  dummy.parent = dummy;
+  parentElement = dumy;
+  return dummy;
+};
 window.enter_peer_id = {style:{}};
 window.show_own_id = {style:{}};
 window.connections  = {style:{},appendChild:function(){}};
@@ -41,6 +47,7 @@ window.qr_btn  = {style:{}};
 window.custom_btn  = {style:{}};
 window.scan_btn  = {style:{}};
 window.qrCode  = {style:{}};
+
 
 
 
@@ -510,16 +517,16 @@ function onPeerConnect(connect_id, peer_id) {
   }
   savePeerId(peer_id);
 
-  let conn_div = document.createElement("div");
+  let conn_div = document_createElement("div");
 
-  let ping_btn = document.createElement("button");
+  let ping_btn = document_createElement("button");
   ping_btn.innerHTML = "ping";
   conn_div.appendChild(ping_btn);
 
-  let ping_time = document.createElement("div");
+  let ping_time = document_createElement("div");
   conn_div.appendChild(ping_time);
 
-  let ping_count = document.createElement("div");
+  let ping_count = document_createElement("div");
   let pings = 0;
   conn_div.appendChild(ping_count);
 

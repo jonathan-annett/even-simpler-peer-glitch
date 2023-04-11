@@ -25,6 +25,7 @@ SOFTWARE.
 
 */
 
+window.document_createElement = document.createElement.bind(document);
 
 getEl('enter_peer_id',  document.querySelector("#enter_peer_id"));
 getEl('show_own_id',  document.querySelector("#show_own_id"));
