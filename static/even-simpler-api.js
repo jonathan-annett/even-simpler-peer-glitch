@@ -470,6 +470,31 @@ function customConnect(customId) {
 
   delete peer._signal_data;
 
+  let peerPostMessage = function(ev) {
+     try {
+        
+       window.parent.postMessage (ev.data);
+       peerPostMessage = window.parent.postMessage.bind(window.parent);
+
+     } catch (e) {
+
+      if (typeof window.parent.peerPostMessage === 'function') {
+         try {
+
+           window.parent.peerPostMessage(ev.data);
+           peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
+
+         } catch( e) {
+          console.log(e);
+         }
+
+      } else {
+        console.log(e);
+      }
+      
+     }
+  };
+
   let errored = false;
   peer = null;
   peerConfig.initiator = false;
@@ -510,7 +535,7 @@ function customConnect(customId) {
 
       if (framed) {
         if (data.message) {
-          window.parent.postMessage({ message: data.message }, target_origin);
+         peerPostMessage({ message: data.message }, target_origin);
         }
       } else {
         log("got data", json_data);
@@ -535,7 +560,7 @@ function customConnect(customId) {
     peer.on("close", function () {
 
       if (framed) {
-        window.parent.postMessage({ disconnected: { connect_id, peer_id } }, target_origin);
+        peerPostMessage({ disconnected: { connect_id, peer_id } }, target_origin);
       } else {
         log("closed");
       }
@@ -575,7 +600,7 @@ function customConnect(customId) {
 function onPeerConnect(connect_id, peer_id) {
 
   if (framed) {
-    window.parent.postMessage({ connected: { connect_id, peer_id } }, target_origin);
+    peerPostMessage({ connected: { connect_id, peer_id } }, target_origin);
   } else {
     log("connected connect_id=", connect_id, "peer=", peer_id);
   }
@@ -601,7 +626,7 @@ function onPeerConnect(connect_id, peer_id) {
 
     if (framed) {
       if (data.message) {
-        window.parent.postMessage({ message: data.message }, target_origin);
+        peerPostMessage({ message: data.message }, target_origin);
       }
     } else {
       log("got data", json_data);
@@ -631,7 +656,7 @@ function onPeerConnect(connect_id, peer_id) {
   peer.on("close", function () {
 
     if (framed) {
-      window.parent.postMessage({ disconnected: { connect_id, peer_id } }, target_origin);
+      peerPostMessage({ disconnected: { connect_id, peer_id } }, target_origin);
     } else {
       log("closed");
     }

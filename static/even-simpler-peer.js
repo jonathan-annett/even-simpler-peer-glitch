@@ -73,7 +73,11 @@ function evenSimplerPeer() {
         peerInfo.db = x;
       };
 
-        
+      window.peerPostMessage =function(data){
+        const event = new CustomEvent("message", { data: data });
+        window.dispatchEvent(event);
+      };
+      
       iframe.contentWindow.postMessage(payload,target_origin);    
       
   };
