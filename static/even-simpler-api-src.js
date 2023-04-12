@@ -135,10 +135,13 @@ function onFrameMessage(event) {
     // by the loading page (see otions below)
     target_href = event.data.target_href;
   }
+  let reload_needed = false;
   const opt = event.data.options;
   if (opt) {
 
-
+    if (opt.target_origin) {
+      target_origin = opt.target_origin;
+    }
 
     if (opt.target_href) {
       target_href = opt.target_href;
@@ -159,6 +162,24 @@ function onFrameMessage(event) {
 
     }
 
+      
+    if (validateId(opt.peer_id)) {
+
+      if (enter_peer_id.value !== opt.peer_id) {
+        enter_peer_id.value = opt.peer_id
+        reload_needed = true;
+      }
+
+    }
+
+    if (validateId(opt.own_id)) {
+      if (own_id_clean !== opt.own_id) {
+        own_id_clean = opt.own_id;
+        reload_needed = true;
+      }
+    }
+
+
   }
 
   if (event.data.send) {
@@ -171,7 +192,7 @@ function onFrameMessage(event) {
     // and send the first message inside a single postMessage 
   }
 
-  let reload_needed = false;
+
 
   if (validateId(event.data.peer_id)) {
 
