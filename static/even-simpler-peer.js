@@ -116,9 +116,9 @@ function evenSimplerPeer(headless) {
   const target_origin = `https://${domain}/`;
   
   const events = {
-     connected    : [],
+     connect      : [],
      message      : [],
-     disconnected : []
+     close      : []
   };
 
    
@@ -134,6 +134,10 @@ function evenSimplerPeer(headless) {
        if (typeof e + typeof fn ==='stringfunction' && events[e]) {
           const ix = events[e].indexOf(fn);
           if (ix<0) events[e].push(fn);
+       } else {
+        if (typeof e==='string' && !events[e]) {
+          console.log(e,'is not a recognized event name');
+        }
        }
     },
     
@@ -141,6 +145,10 @@ function evenSimplerPeer(headless) {
        if (typeof e + typeof fn ==='stringfunction' && events[e]) {
           const ix = events[e].indexOf(fn);
           if (ix>=0) events[e].splice(ix,1);
+       } else {
+         if (typeof e==='string' && !events[e]) {
+            console.log(e,'is not a recognized event name');
+         }
        }
     }
     
@@ -203,13 +211,13 @@ function evenSimplerPeer(headless) {
       } else {
           if (event.data.connected) {
             //iframe.style.display="none";
-            events.connected.forEach(function(fn){
+            events.connect.forEach(function(fn){
               fn(event.data.connected);
             });
           } else {
             if (event.data.disconnected) {
               //iframe.style.display="block";              
-              events.disconnected.forEach(function(fn){
+              events.close.forEach(function(fn){
                 fn(event.data.disconnected);
               });
             }
