@@ -435,7 +435,12 @@ function customConnect(customId) {
   customConnectTimeouts [instance] = setTimeout(getPeerSignal,1);
 
   peer.on("error", function (err) {
-    log("error", err);
+    if (framed) {
+      peerPostMessage({ error: err.toString() }, target_origin);
+    } else {
+      log("error", err);
+    }
+   
   });
 
   peer.on("signal", function (data) {

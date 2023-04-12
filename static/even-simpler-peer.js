@@ -118,7 +118,8 @@ function evenSimplerPeer(headless) {
   let events = {
      connect      : [],
      message      : [],
-     close      : []
+     close        : [],
+     error        : []
   };
 
   
@@ -159,9 +160,11 @@ function evenSimplerPeer(headless) {
       events.connect.splice(0,events.connect.lemgth);
       events.close.splice(0,events.close.lemgth);
       events.message.splice(0,events.message.lemgth);
+      events.error.splice(0,events.error.lemgth);
       delete events.message;
       delete events.close;
       delete events.connect;
+      delete events.error;
       events=null;
       
       if (iframe) {
@@ -239,6 +242,13 @@ function evenSimplerPeer(headless) {
             events.close.forEach(function(fn){
               fn(event.data.disconnected);
             });
+          } else {
+            if (event.data.error) {
+              //iframe.style.display="block";              
+              events.error.forEach(function(fn){
+                fn(event.data.error);
+              });
+            }
           }
         }
     }
