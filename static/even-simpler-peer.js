@@ -115,13 +115,15 @@ function evenSimplerPeer(headless) {
   const iframe_url    = options.headless ? `https://${domain}/even-simpler-api-headless.html` : `https://${domain}/api`;
   const target_origin = `https://${domain}/`;
   
-  const events = {
+  let events = {
      connect      : [],
      message      : [],
      close      : []
   };
 
-   
+  
+  let iframe = document.createElement('iframe'); 
+
   const self =  {
     
     send :      sendToPeer,
@@ -150,13 +152,28 @@ function evenSimplerPeer(headless) {
             console.log(e,'is not a recognized event name');
          }
        }
+    },
+    destroy : function() {
+      window.removeEventListener('message',onMessages);
+
+      events.connect.splice(0,events.connect.lemgth);
+      events.close.splice(0,events.close.lemgth);
+      events.message.splice(0,events.message.lemgth);
+      delete events.message;
+      delete events.close;
+      delete events.connect;
+      events=null;
+      
+      if (iframe) {
+        iframe.parentElement.removeChild(iframe);
+        iframe = null;
+      }
     }
     
   };
 
   
-  const iframe = document.createElement('iframe');
-  
+
   iframe.src = iframe_url;
   
   iframe.setAttribute('allow','clipboard-read; clipboard-write');
@@ -202,29 +219,31 @@ function evenSimplerPeer(headless) {
   
   document.body.appendChild(iframe);
        
-  window.addEventListener('message',function(event){
+  window.addEventListener('message',onMessages);
 
-      if (event.data.message) {
-          events.message.forEach(function(fn){
-            fn(event.data.message);
+  function onMessages(event){
+
+    if (event.data.message) {
+        events.message.forEach(function(fn){
+          fn(event.data.message);
+        });
+    } else {
+        if (event.data.connected) {
+          //iframe.style.display="none";
+          events.connect.forEach(function(fn){
+            fn(event.data.connected);
           });
-      } else {
-          if (event.data.connected) {
-            //iframe.style.display="none";
-            events.connect.forEach(function(fn){
-              fn(event.data.connected);
+        } else {
+          if (event.data.disconnected) {
+            //iframe.style.display="block";              
+            events.close.forEach(function(fn){
+              fn(event.data.disconnected);
             });
-          } else {
-            if (event.data.disconnected) {
-              //iframe.style.display="block";              
-              events.close.forEach(function(fn){
-                fn(event.data.disconnected);
-              });
-            }
           }
-      }
-     
-  });
+        }
+    }
+   
+}
   
   function sendToPeer(msg) {
       iframe.contentWindow.postMessage({send:msg},target_origin);     
