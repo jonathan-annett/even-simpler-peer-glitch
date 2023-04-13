@@ -40,7 +40,7 @@ SOFTWARE.
           logger.innerHTML += "out:"+JSON.stringify(msg,undefined,4)+"\n";
         };
         
-        peer.on('connected',function(){
+        peer.on('connect',function(){
           document.title = "connected";
           peerSend({hello:"world"});
           document.querySelector("iframe").style.display = "none";
@@ -50,11 +50,17 @@ SOFTWARE.
           logger.innerHTML += "in: "+JSON.stringify(msg,undefined,4)+"\n";
         });
         
-        peer.on('disconnected',function(){
+        peer.on('close',function(){
           document.title = "disconnected";
           document.querySelector("iframe").style.display = "block";
         });
         
+         
+        peer.on('error',function(err){
+          document.title = "error";
+          document.querySelector("iframe").style.display = "block";
+          log(err);
+        });
         
         btn.onclick = function(){
            try {
