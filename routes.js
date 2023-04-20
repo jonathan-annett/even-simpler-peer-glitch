@@ -2,12 +2,20 @@ var numkeys  = {};
 var numkey_poll = {};
 
 const maxAge = 1000*60*60*30; 
+//const ws = require('ws');
+
+const crypto = require('crypto');
+const { execSync } = require('child_process');
+
+const WebSocketServer = require('websocket').server;
+
 
 
 //
 // This defines the routes that our API is going to use.
 //
 var routes = function (app) {
+  
   //
   // This route processes GET requests, by using the `get()` method in express, and we're looking for them on
   // the root of the application (in this case that's https://rest-api.glitch.me/), since we've
@@ -30,6 +38,7 @@ var routes = function (app) {
   app.get ("/api",function(req,res){
       res.sendFile(__dirname + "/static/even-simpler-api.html");
   });
+  
   app.post ("/api",function(req,res){
         
     numKeyCleanup ();
@@ -51,8 +60,8 @@ var routes = function (app) {
             delete polled.send;
            
             delete numkey_poll[req.body.set.id];
-            //delete numkeys[req.body.set.id].data;
-            //delete numkeys[req.body.set.id];
+            delete numkeys[req.body.set.id].data;
+            delete numkeys[req.body.set.id];
             console.log("post.set sent to polled get:",req.body.set.id);
             return res.send("\"sent\"");
          }
@@ -75,8 +84,8 @@ var routes = function (app) {
          if (query) {
            res.send(query.data);
            console.log("post.get:",id);
-           //delete query.data;
-           //delete numkeys[id];
+           delete query.data;
+           delete numkeys[id];
            return;
          }
 
@@ -103,8 +112,34 @@ var routes = function (app) {
     }
         
   });
+/*
+  app.post('/git', (req, res) => {
+    const hmac = crypto.createHmac('sha1', process.env.SECRET);
+    const sig  = 'sha1=' + hmac.update(JSON.stringify(req.body)).digest('hex');
+    if (req.headers['x-github-event'] === 'push' &&
+      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(req.headers['x-hub-signature']))) {
+      res.sendStatus(200);
+      const commands = ['git fetch origin master',
+                        'git reset --hard origin/master',
+                        'git pull origin master --force',
+                        'npm install',
+                        // your build commands here
+                        'refresh']; // fixes glitch ui
+      for (const cmd of commands) {
+        console.log(execSync(cmd).toString());
+      }
+      console.log('updated with origin/master!');
+      return;
+    } else {
+      console.log('webhook signature incorrect!');
+      return res.sendStatus(403);
+    }
+  });
   
+  */
+
   
+ 
   
   function numKeyCleanup () {
     if (numKeyCleanup.timeout) {
@@ -131,8 +166,9 @@ var routes = function (app) {
     numKeyCleanup.timeout = setTimeout(numKeyCleanup,60000);
     
   }
+  
 
-
+  
 };
 
 module.exports = routes;

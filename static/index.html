@@ -26,17 +26,85 @@ SOFTWARE.
 -->
   <head> 
     
-      <script src="simplepeer.min.js"></script>
+      <script src="simple/simplepeer.min.js"></script>
+      <script src="simple/offerPeer.js"></script>
+      <script src="simple/answerPeer.js"></script>
+      <script src="simple/browserAppPeer.js"></script>
+      
+      <script src="simple/pluginPeer.js" defer></script>
+      <script src="simple/propertyInspectorPeer.js" defer></script>
+      <script src="mockSDApis.js"></script>     
+      <script src="index.js" defer></script>
+    
+
+      <style>
+        
+        input {
+
+          width : 90vw;
+
+        }
+        </style>
 
   </head>
   <body>
+    <h1>link two browsers via https rest API (in node.js)</h1>
+   <pre>
+     
+
+
+
+    </pre>
+
+    <script>
+      window.peerInfo = function(x){
+        console.log('peerInfo',x);
+      };
+
+    </script>
     <a href="test-frame.html">frame</a> test bed
     
+
+    <h1>link browser with app via clipboard</h1>
+    <pre>
+
+  
+      app                                     browser
+
+      peer1=new(init,notrickle)
+      wait unti peer1.onSignal()
+      offer = peer1.onSignal()
+      wait until click()
+      backedUp = clip.read()
+      clip.write(offer)
+                                            wait until click()
+                                            offer = clip.read()
+                                            peer2 = new(notrickle)
+                                            peer2.signal(offer)
+                                            wait until peer2.onSignal()
+                                            answer = peer2.onSignal()
+                                            clip.write(answer)
+                                               (if fail due to permissions, wait until click, retry)
+      wait until window.blur()
+      update ui
+      wait until click()
+      answer = clip.read()
+      clip.write(backedUp)
+      peer1.signal(answer)
+      wait until peer1.connect()
+      emit("connect")
+      
+
+   
+
+    </pre>
     <div style="background-color:yellow;margin:20px;">
      Browser 
     <button id="button1">
       --1--
     </button>
+    <br>
+    <input id="in1" type="text"><br><button disabled  id="test1">send random</button>
       
     </div>
     
@@ -45,361 +113,212 @@ SOFTWARE.
     <button id="button2">
       --2--
     </button>
+    <br>
+    <input id="in2" type="text"><br><button disabled  id="test2">send random</button>
     </div>
-    
-    <input id="in1" type="text"><button id="test1">test</button>
-    <input id="in2" type="text"><button id="test2">test</button>
-    <script>
-          const inputs = document.querySelectorAll("input");
-          const buttons = document.querySelectorAll("button");
 
 
-          const dummy = {
-            db : {},
-            fn : {},
-            sendOffer  : function(offer){
-              if (dummy.fn.offer) {
-                dummy.fn.offer(offer);
-              } else {
-                dummy.db.offer=offer;
-              }
-            },
-            onAnswer   : function(fn){
-                if (dummy.db.answer) {
-                  fn(dummy.db.answer);
-                  delete dummy.db.answer;
-                }
-                dummy.fn.answer=fn;
-            },
-            onOffer    : function(fn){
-              if (dummy.db.offer) {
-                  fn(dummy.db.offer);
-                  delete dummy.db.offer;
-                }
-                dummy.fn.offer=fn;
-            },
-            sendAnswer : function(answer){
-              if (dummy.fn.answer) {
-                dummy.fn.offer(answer);
-              } else {
-                dummy.db.answer=answer;
-              }
-            }
-          };
-        
-          const peer = offerPeer(document.querySelector("#button1"),dummy);
+
+
+    <h1>streamdeck approach: app to browser via clipboard in inspector window</h1>
+    <h2>combined pseudocode showing logic flow</h2>
+    <pre>
+
+      because the plugin instance does not have access to a ui (or clipboard), we can't use
+      the clipboard approach directly instead we need to open a temporary webrtc connection using 
+      the streamdeck property inspector, in order to use it to exchange offer/answer info with the
+      isolated plugin instance, which is persistent. (the property inspector is disposed of when closed)
+
+
+      plugin                          prop insp                     browser app
       
-          peer.on('connect',function(){
-            alert('yay. peer1 connected');
-          });
-      
-          peer.on('close',function(){
-            alert('boo. peer1 disconnected');
-          });
+                                                                    
+                                                                    peer1 ? 
+                                                                      ... peer1.destroy()
+                                                                    peer1 = new(init,notrickle)
+                                                                    wait until peer1.onSignal()
+                                                                    offer1 = peer1.onSignal()
+                                                                    wait until click()
+                                                                    clip.write(offer1)
+                                      wait until click()
+                                      offer1 = clip.read()
+                                      peer2 ? 
+                                         ... peer2.destroy()
 
-          peer.on('data',function(data){
-            inputs[0].value=data.toString();
-          });
-          
-          buttons[2].onclick=function(){
-             peer.send(
-              "test Message" +Math.random().toString()
-             );
-          };
+                                      peer2 = new (notrickle) 
+                                      peer2.signal(offer1)
+                                      wait until peer2.onSignal()
+                                      answer1 = peer2.onSignal()
+                                      clip.write(answer1)
+                                          ( if fail: 
+                                            wait until click(), 
+                                            retry)
 
-          const peer2 = answerPeer(document.querySelector("#button2"),dummy);
-      
-          peer2.on('connect',function(){
-            alert('yay. peer2 connected');
-          });
-          peer2.on('close',function(){
-            alert('boo. peer2 disconnected');
-          });
-      
-          peer2.on('data',function(data){
-            inputs[1].value=data.toString();
-          });
+                                                                    wait until click()
+                                                                    answer1=clip.read()
+                                                                    peer1.signal(answer1)
+                                                                    wait until onConnect()
+                                                                    peer3=new(init,notrickle)
+                                                                    offer2=peer3.onSignal()
+                                                                    peer1.send(offer2)
+                                      wait until onConnect()
+                                      wait until onData() 
+                                      offer2=peer2.onData()
+                                      $pi.sendToPlugin(offer2)
+      wait until $sd.onSendToPlugin()
+      offer2=$sd.onSendToPlugin()
+      peer4 ?
+         ...peer4.destroy()
+      peer4()=new (notrickle) 
+      peer4.signal(offer2)
+      wait until peer4.onSignal()
+      answer2=peer4.onSignal()
+      $sd.sendToPI(answer2)         
+                                      wait until $pi.onSendToPI()
+                                      answer2=$pi.onSendToPI()
+                                      peer2.send(answer2)
+                                                                    wait until peer2.onData()
+                                                                    answer2 = peer2.onData()
+                                                                    peer3.signal(answer2)
+                                                                    wait until peer3.onConnect()
+                                                                    peer1.destroy()
 
-          buttons[3].onclick=function(){
-             peer2.send(
-              "test Message" +Math.random().toString()
-             );
-          };
-   
-        function offerPeer(button,comms) {
+                                      wait until peer2.onClose()
+                                      $pi.sendToPlugin("connected")
+                                      peer2.destroy()
 
-          let peer = boot(),
-              backup;
-          
-          let finalPeer =  new SimplePeer ({
-                initiator: true,
-                trickle: false,
-                objectMode: false,
-          });
-          let finalPeerOffer;
-          finalPeer.on('signal',function(offer){
-            finalPeerOffer=offer;
-          });
+     $sd.onSendToPlugin()=="connected"?
+     emit("connected")
+         
+     peer4.onData()==>emit("data")
+     wait until peer4.onClose()
+     peer4.destroy()
+                                                                    peer3.onData()==>emit("data")
+                                                                    wait until peer3.onClose()
+                                                                    peer3.destroy()
+</pre>
 
-          comms.onAnswer(function(ans){return finalPeer.signal(ans);});
-          
-          return finalPeer;
-          
-          function boot() {
-            
-            let peer = new SimplePeer ({
-                initiator: true,
-                trickle: false,
-                objectMode: false,
-            }); 
+<h2>
+  pseudocode for plugin:
+</h2>
+<pre>
 
-            peer.on('signal',function(signalData){
-               peer.signalJSON = btoa(JSON.stringify(signalData));
-               button.value = "connect";
-               button.innerHTML = button.value;
-               button.addEventListener('click',clickEvent1);          
-            });
+  wait until $sd.onSendToPlugin()
+  offer2=$sd.onSendToPlugin()
+  peer4 ?
+     ...peer4.destroy()
+  peer4()=new (notrickle) 
+  peer4.signal(offer2)
+  wait until peer4.onSignal()
+  answer2=peer4.onSignal()
+  $sd.sendToPI(answer2)         
+  
+  $sd.onSendToPlugin()=="connected"?
+     emit("connected")
+     
+  peer4.onData()==>emit("data")
+  wait until peer4.onClose()
+  peer4.destroy()
 
-            peer.on('connect',onConnectEvent);
-            //peer.on('close',onCloseEvent);
+</pre>
 
-            return peer;
-          }
-          
-          function onConnectEvent() {
-             button.value = "disconnect";
-             button.innerHTML = button.value;
-             button.addEventListener('click',clickEvent3);  
-             button.disabled=false;
+<h2>pseudocode for property inspector</h2>
+<pre>
 
-             trySendOffer();
+  wait until click()
+  offer1 = clip.read()
+  peer2 ? 
+    ... peer2.destroy()
 
-             function trySendOffer(){
-                if (finalPeerOffer) {
-                  return comms.sendOffer(finalPeerOffer);
-                }
-                setTimeout(trySendOffer,1000);
-             }
-          }
-          
-          function onCloseEvent(){
-            
-            button.value = "connect";
-            button.innerHTML = button.value;
-            button.removeEventListener('click',clickEvent1);  
-            button.removeEventListener('click',clickEvent2);  
-            button.removeEventListener('click',clickEvent3);  
-            
-            peer.destroy();
-            
-            peer = boot();
-            
-          }
-
-          function clickEvent1(ev){
-            
-            if (peer.signalJSON) {
-                navigator.clipboard.read().then(function(data){
-                    backup=data;
-                    navigator.clipboard.writeText(peer.signalJSON).then(function(){
-                        button.removeEventListener('click',clickEvent1);
-                        button.value = "click \"paste connection request\" in other app";
-                        button.innerHTML = button.value;
-                        button.disabled=true;
-                        setTimeout(function(){
-                            window.addEventListener('blur',onblur)
-                        },500);
-                    }).catch(function(err){
-                      alert(err);
-                    });
-                });
-            }
-            
-          }
-          
-          function onblur () {
-            
-              button.value = "paste response";
-              button.innerHTML = button.value;
-            
-              button.removeEventListener('click',clickEvent1);
-              button.addEventListener('click',clickEvent2);
-              button.disabled=false;
-              window.removeEventListener('blur',onblur) ;
-            
-          }
-            
-          function clickEvent2(ev) {
-                        
-            navigator.clipboard.readText().then(function(signalJSON){
-               if (peer.signalJSON===signalJSON) {
-                  return alert('please paste into the other app before clicking here');
-               }
-              
-              try {
-                const signalData = JSON.parse(atob(signalJSON));
-              
-                if (signalData.type==='answer') {
-                    peer.signal(signalData);
-                    button.removeEventListener('click',clickEvent2);
-                    navigator.clipboard.write(backup).then(function(){
-                      button.disabled=true;
-                  }).catch(function(){
-                    
-                  });
-                }
-                
-              } catch (e) {
-                alert (e);
-              }
-              
-            }).catch(function(err){
-              alert(err);
-            });
-
-          }
-        
-          function clickEvent3 () {
-            //peer.destroy();
-          }
-                
-        }  
-      
-        function answerPeer(button,comms) {
-          
-          let peer = boot(),
-              backup;
-          
-          
-          let finalPeer =  new SimplePeer ({
-                initiator: false,
-                trickle: false,
-                objectMode: false,
-          });
+  peer2 = new (notrickle) 
+  peer2.signal(offer1)
+  wait until peer2.onSignal()
+  answer1 = peer2.onSignal()
+  clip.write(answer1)
+    ( if fail: 
+      wait until click(), 
+      retry)
 
 
-          comms.onOffer(function(o){ return finalPeer.signal(o);});
-          finalPeer.on('signal',comms.sendAnswer);
+  wait until onConnect()
+  wait until onData() 
+  offer2=peer2.onData()
+  $pi.sendToPlugin(offer2)
 
-          return finalPeer;
-          
-          function boot() {
-            
-       
-            let peer = new SimplePeer ({              
-                initiator: false,
-                trickle: false,
-                objectMode: false
-            }); 
+  wait until $pi.onSendToPI()
+  answer2=$pi.onSendToPI()
+  peer2.send(answer2)
 
-            button.addEventListener('click',clickEvent1);
-            button.value     = "paste connection request";
-            button.innerHTML = button.value;
-               
-            peer.on('connect',onConnectEvent);
-            //peer.on('close',onCloseEvent);
-            return peer;
-          }
-          
-          
-          function onConnectEvent() {
-             button.value = "disconnect";
-             button.innerHTML = button.value;
-             button.addEventListener('click',clickEvent3);     
-             button.disabled=false;
-          }
-          
-          function onCloseEvent(){
-            
-            button.value = "connect";
-            button.innerHTML = button.value;
-            button.removeEventListener('click',clickEvent1);  
-            button.removeEventListener('click',clickEvent2);  
-            button.removeEventListener('click',clickEvent3);  
-            
-            peer.destroy();            
-            peer = boot();     
+  wait until peer2.onClose()
+  $pi.sendToPlugin("connected")
+  peer2.destroy()
 
-          }
-          
-          function onEvent(e,fn) {
-             if (e==='connect') {
-               wrapped_connect = fn;
-             } else {
-               if (e==='close') {
-                 wrapped_close = fn;
-               } else {
-                 return peer_on(e,fn);
-               }
-             }
-          }
-          
-          
-          
-            function clickEvent1(ev) {
-               button.disabled=true;
-               navigator.clipboard.readText().then(function(signalJSON){
-                   try {
-                      const signalData = JSON.parse(atob(signalJSON));
-                     
-                      button.value     = "...busy...";
-                      button.innerHTML = button.value;
-                      button.removeEventListener('click',clickEvent1);
-                     
-                      peer.on('signal',function(signalData){
-                         peer.signalJSON  = btoa(JSON.stringify(signalData));
-                         button.value     = "copy connection response";
-                         button.innerHTML = button.value;
-                         button.addEventListener('click',clickEvent2);
-                         button.disabled=false;
-                        
-                         clickEvent2(ev);
+                                  
+</pre>
 
-                      });
 
-                      if (signalData.type==='offer') {
-                         peer.signal(signalData);
-                      } else {
-                         button.disabled=false;
-                      }
+<h2>pseudocode for browser app</h2>
+<pre>
+                                                                
+  peer1 ? 
+    ... peer1.destroy()
+  peer1 = new(init,notrickle)
+  wait until peer1.onSignal()
+  offer1 = peer1.onSignal()
+  wait until click()
+  clip.write(offer1)
 
-                  } catch (e) {
-                     button.disabled=false;
-                     alert (e);
-                  }
-               });  
-            }
+  
+  wait until click()
+  answer1=clip.read()
+  peer1.signal(answer1)
+  wait until onConnect()
+  peer3=new(init,notrickle)
+  offer2=peer3.onSignal()
+  peer1.send(offer2)
 
-            function clickEvent2(ev){
 
-              if (peer.signalJSON) {
-                  navigator.clipboard.writeText(peer.signalJSON).then(function(){
-                      button.disabled=true;
-                      button.removeEventListener('click',clickEvent2);
-                      button.value     = "click \"paste response\" into other app";
-                      button.innerHTML = button.value;
-                      
-                  }).catch(function(){
-                  });
-              }
+  wait until peer2.onData()
+  answer2 = peer2.onData()
+  peer3.signal(answer2)
+  wait until peer3.onConnect()
+  peer1.destroy()
 
-            }
-          
-          
-          function clickEvent3 () {
-             //peer.destroy();
-          }
-          
-        }
-      
+  peer3.onData()==>emit("data")
+  wait until peer3.onClose()
+  peer3.destroy()
+</pre>
 
-        /*
-        
-        
-        
-        
-        */
-      
-    </script>
+
+ 
+<div style="background-color:lime;margin:20px;">
+  <h3>Browser App</h3>
+<button id="app_button">
+  --4--
+</button>
+<br>
+<input id="app_in" type="text">
+<br>
+<button disabled  id="app_test">send random</button>  
+</div>
+
+<div style="background-color:yellow;margin:20px;">
+ <h3>Property Inspector </h3> 
+ <button id="pi_button">
+   --3--
+ </button>
+
+ </div>
+
+ <div style="background-color:lightgray;margin:20px;">
+  <h3>Plugin</h3>
+  <br>
+  <input id="plug_in" type="text">
+  <br>
+  <button disabled id="plug_test">send random</button>  
+</div>
+
+ 
+
   </body>
 </html>

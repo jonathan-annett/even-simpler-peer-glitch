@@ -47,6 +47,25 @@ let target_href = location.href.replace(/\?.*/, '');
 let share_url;
 const framed = (window.location !== window.parent.location);
 
+
+
+let peerPostMessage = function(ev) {
+ 
+   if (typeof window.parent.peerPostMessage === 'function') {
+      try {
+
+        window.parent.peerPostMessage(ev.data);
+        peerPostMessage = window.parent.peerPostMessage.bind(window.parent);
+
+      } catch( e) {
+       console.log(e);
+      }
+   }
+    
+   
+  
+};
+
 function log() {
   //if (framed) return;
   logview.innerHTML += [].map.call(arguments, function (a) {
@@ -54,298 +73,6 @@ function log() {
   }).join(" ") + "<br>";
 }
 
-
-  function offerPeer(button) {
-    let peer_on,peer = boot(),
-
-        backup,
-        wrapped_connect,
-        wrapped_close ;
-
-
-    return peer;
-
-    function boot() {
-
-      let peer = new SimplePeer ({
-          initiator: true,
-          trickle: false,
-          objectMode: false,
-      }); 
-
-      peer.on('signal',function(signalData){
-         peer.signalJSON = btoa(JSON.stringify(signalData));
-         button.value = "connect";
-         button.innerHTML = button.value;
-         button.addEventListener('click',clickEvent1);          
-      });
-
-      peer.on('connect',onConnectEvent);
-      peer.on('close',onCloseEvent);
-      peer_on = peer.on.bind(peer),
-
-      delete peer.on;
-      peer.on = onEvent;
-
-      return peer;
-    }
-
-    function onConnectEvent() {
-       button.value = "disconnect";
-       button.innerHTML = button.value;
-       button.addEventListener('click',clickEvent3);  
-       button.disabled=false;
-
-
-       if (typeof wrapped_connect==='function') {
-          wrapped_connect();
-       }
-    }
-
-    function onCloseEvent(){
-
-      button.value = "connect";
-      button.innerHTML = button.value;
-      button.removeEventListener('click',clickEvent1);  
-      button.removeEventListener('click',clickEvent2);  
-      button.removeEventListener('click',clickEvent3);  
-
-      peer.destroy();
-
-      peer = boot();
-
-
-      if (typeof wrapped_close==='function') {
-          wrapped_close();
-      }
-
-    }
-
-    function onEvent(e,fn) {
-       if (e==='connect') {
-         wrapped_connect = fn;
-       } else {
-         if (e==='close') {
-           wrapped_close = fn;
-         } else {
-           return peer_on(e,fn);
-         }
-       }
-    }
-
-    function clickEvent1(ev){
-
-      if (peer.signalJSON) {
-          navigator.clipboard.read().then(function(data){
-              backup=data;
-              navigator.clipboard.writeText(peer.signalJSON).then(function(){
-                  button.removeEventListener('click',clickEvent1);
-                  button.value = "click \"paste connection request\" in other app";
-                  button.innerHTML = button.value;
-                  button.disabled=true;
-                  setTimeout(function(){
-                      window.addEventListener('blur',onblur)
-                  },500);
-              }).catch(function(err){
-                alert(err);
-              });
-          });
-      }
-
-    }
-
-    function onblur () {
-
-        button.value = "paste response";
-        button.innerHTML = button.value;
-
-        button.removeEventListener('click',clickEvent1);
-        button.addEventListener('click',clickEvent2);
-        button.disabled=false;
-        window.removeEventListener('blur',onblur) ;
-
-    }
-
-    function clickEvent2(ev) {
-
-      navigator.clipboard.readText().then(function(signalJSON){
-         if (peer.signalJSON===signalJSON) {
-            return alert('please paste into the other app before clicking here');
-         }
-
-        try {
-          const signalData = JSON.parse(atob(signalJSON));
-
-          if (signalData.type==='answer') {
-              peer.signal(signalData);
-              button.removeEventListener('click',clickEvent2);
-              navigator.clipboard.write(backup).then(function(){
-                button.disabled=true;
-            }).catch(function(){
-
-            });
-          }
-
-        } catch (e) {
-          alert (e);
-        }
-
-      }).catch(function(err){
-        alert(err);
-      });
-
-    }
-
-    function clickEvent3 () {
-      peer.destroy();
-    }
-
-  }  
-
-  function answerPeer(button) {
-
-    let peer_on,peer = boot(),
-
-        backup,
-        wrapped_connect,
-        wrapped_close ;
-
-
-    return peer;
-
-    function boot() {
-
-
-      let peer = new SimplePeer ({              
-          initiator: false,
-          trickle: false,
-          objectMode: false
-      }); 
-
-      button.addEventListener('click',clickEvent1);
-      button.value     = "paste connection request";
-      button.innerHTML = button.value;
-
-      peer.on('connect',onConnectEvent);
-      peer.on('close',onCloseEvent);
-      peer_on = peer.on.bind(peer),
-
-      delete peer.on;
-      peer.on = onEvent;
-
-      return peer;
-    }
-
-
-
-    delete peer.on;
-    peer.on = onEvent;
-
-    return peer;
-
-    function onConnectEvent() {
-       button.value = "disconnect";
-       button.innerHTML = button.value;
-       button.addEventListener('click',clickEvent3);     
-       button.disabled=false;
-
-
-       if (typeof wrapped_connect==='function') {
-          wrapped_connect();
-       }
-    }
-
-    function onCloseEvent(){
-
-      button.value = "connect";
-      button.innerHTML = button.value;
-      button.removeEventListener('click',clickEvent1);  
-      button.removeEventListener('click',clickEvent2);  
-      button.removeEventListener('click',clickEvent3);  
-
-      peer.destroy();
-
-      peer = boot();
-
-
-      if (typeof wrapped_close==='function') {
-          wrapped_close();
-      }
-
-    }
-
-    function onEvent(e,fn) {
-       if (e==='connect') {
-         wrapped_connect = fn;
-       } else {
-         if (e==='close') {
-           wrapped_close = fn;
-         } else {
-           return peer_on(e,fn);
-         }
-       }
-    }
-
-
-
-      function clickEvent1(ev) {
-         button.disabled=true;
-         navigator.clipboard.readText().then(function(signalJSON){
-             try {
-                const signalData = JSON.parse(atob(signalJSON));
-
-                button.value     = "...busy...";
-                button.innerHTML = button.value;
-                button.removeEventListener('click',clickEvent1);
-
-                peer.on('signal',function(signalData){
-                   peer.signalJSON  = btoa(JSON.stringify(signalData));
-                   button.value     = "copy connection response";
-                   button.innerHTML = button.value;
-                   button.addEventListener('click',clickEvent2);
-                   button.disabled=false;
-
-                   clickEvent2(ev);
-
-                });
-
-                if (signalData.type==='offer') {
-                   peer.signal(signalData);
-                } else {
-                   button.disabled=false;
-                }
-
-            } catch (e) {
-               button.disabled=false;
-               alert (e);
-            }
-         });  
-      }
-
-      function clickEvent2(ev){
-
-        if (peer.signalJSON) {
-            navigator.clipboard.writeText(peer.signalJSON).then(function(){
-                button.disabled=true;
-                button.removeEventListener('click',clickEvent2);
-                button.value     = "click \"paste response\" into other app";
-                button.innerHTML = button.value;
-
-            }).catch(function(){
-            });
-        }
-
-      }
-
-
-    function clickEvent3 () {
-       peer.destroy();
-    }
-
-  }
-
-
- 
 
 let peerConfig = {
   initiator: true,
@@ -373,6 +100,16 @@ copy_btn.onclick = function () {
   let share_url = target_href + '?' + new_peer_id + own_id_clean;
   navigator.clipboard.writeText(share_url);
   enter_peer_id.value = formatId(new_peer_id);
+  if (typeof window.parent.peerInfo==='function') {
+      window.parent.peerInfo ( {
+        url : share_url,
+        own_id : own_id,
+        peer_id : new_peer_id,
+        customurl : function(baseurl) {
+          return baseurl + '?' + new_peer_id + own_id_clean;
+        }
+      });
+  }
   setTimeout(peer_id_changed, 500);
   logview.innerHTML = "";
   log('the link is: ' + share_url + '\n\n' +
@@ -790,7 +527,7 @@ function customConnect(customId) {
 
       if (framed) {
         if (data.message) {
-          window.parent.postMessage({ message: data.message }, target_origin);
+         peerPostMessage({ message: data.message }, target_origin);
         }
       } else {
         log("got data", json_data);
@@ -815,7 +552,7 @@ function customConnect(customId) {
     peer.on("close", function () {
 
       if (framed) {
-        window.parent.postMessage({ disconnected: { connect_id, peer_id } }, target_origin);
+        peerPostMessage({ disconnected: { connect_id, peer_id } }, target_origin);
       } else {
         log("closed");
       }
@@ -855,7 +592,7 @@ function customConnect(customId) {
 function onPeerConnect(connect_id, peer_id) {
 
   if (framed) {
-    window.parent.postMessage({ connected: { connect_id, peer_id } }, target_origin);
+    peerPostMessage({ connected: { connect_id, peer_id } }, target_origin);
   } else {
     log("connected connect_id=", connect_id, "peer=", peer_id);
   }
@@ -881,7 +618,7 @@ function onPeerConnect(connect_id, peer_id) {
 
     if (framed) {
       if (data.message) {
-        window.parent.postMessage({ message: data.message }, target_origin);
+        peerPostMessage({ message: data.message }, target_origin);
       }
     } else {
       log("got data", json_data);
@@ -911,7 +648,7 @@ function onPeerConnect(connect_id, peer_id) {
   peer.on("close", function () {
 
     if (framed) {
-      window.parent.postMessage({ disconnected: { connect_id, peer_id } }, target_origin);
+      peerPostMessage({ disconnected: { connect_id, peer_id } }, target_origin);
     } else {
       log("closed");
     }
