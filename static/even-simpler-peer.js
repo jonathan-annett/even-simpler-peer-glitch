@@ -26,7 +26,6 @@ SOFTWARE.
 
 /* global SimplePeer */
 
-
 /*
  
   this is based loosely on the concept used by the youtube player api:
@@ -92,191 +91,324 @@ SOFTWARE.
 
 */
 
-
 function evenSimplerPeer(headless) {
-  
-  let options = typeof headless === 'object'? headless : { headless : !!headless };
-  const html = document.querySelector('html');
-    
-  if (typeof headless==='undefined') {
+  let options =
+    typeof headless === "object" ? headless : { headless: !!headless };
+  const html = document.querySelector("html");
+
+  if (typeof headless === "undefined") {
     options = {
-        target_origin : location.origin,
-        target_href   : location.href.replace(/\?.*/,''),
-        manual        : html.classList.contains('peer-manual'),
-        scan          : html.classList.contains('peer-scan'),
-        qr            : html.classList.contains('peer-qr'),
-        link          : html.classList.contains('peer-link'),
-        custom        : html.classList.contains('peer-custom') ? 'copy' : false,
-        headless      : false
+      target_origin: location.origin,
+      target_href: location.href.replace(/\?.*/, ""),
+      manual: html.classList.contains("peer-manual"),
+      scan: html.classList.contains("peer-scan"),
+      qr: html.classList.contains("peer-qr"),
+      link: html.classList.contains("peer-link"),
+      custom: html.classList.contains("peer-custom") ? "copy" : false,
+      headless: false,
     };
   }
-  
-  const domain        = "even-simpler-peer.glitch.me";
-  const iframe_url    = options.headless ? `https://${domain}/even-simpler-api-headless.html` : `https://${domain}/api`;
+
+  const domain = "even-simpler-peer.glitch.me";
+  const iframe_url = options.headless
+    ? `https://${domain}/even-simpler-api-headless.html`
+    : `https://${domain}/api`;
   const target_origin = `https://${domain}/`;
-  
+
   let events = {
-     connect      : [],
-     message      : [],
-     close        : [],
-     error        : []
+    connect: [],
+    message: [],
+    close: [],
+    error: [],
   };
 
-  
-  let iframe = document.createElement('iframe'); 
+  let iframe = document.createElement("iframe");
 
-  const self =  {
-    
-    send :      sendToPeer,
-    
-    setPeerId : setPeerId,
-    
-    setTargetHref : setTargetHref, 
-    
-    on   : function (e,fn) {
-       if (typeof e + typeof fn ==='stringfunction' && events[e]) {
-          const ix = events[e].indexOf(fn);
-          if (ix<0) events[e].push(fn);
-       } else {
-        if (typeof e==='string' && !events[e]) {
-          console.log(e,'is not a recognized event name');
+  const self = {
+    send: sendToPeer,
+
+    setPeerId: setPeerId,
+
+    setTargetHref: setTargetHref,
+
+    on: function (e, fn) {
+      if (typeof e + typeof fn === "stringfunction" && events[e]) {
+        const ix = events[e].indexOf(fn);
+        if (ix < 0) events[e].push(fn);
+      } else {
+        if (typeof e === "string" && !events[e]) {
+          console.log(e, "is not a recognized event name");
         }
-       }
+      }
     },
-    
-    off   : function (e,fn) {
-       if (typeof e + typeof fn ==='stringfunction' && events[e]) {
-          const ix = events[e].indexOf(fn);
-          if (ix>=0) events[e].splice(ix,1);
-       } else {
-         if (typeof e==='string' && !events[e]) {
-            console.log(e,'is not a recognized event name');
-         }
-       }
-    },
-    destroy : function() {
-      window.removeEventListener('message',onMessages);
 
-      events.connect.splice(0,events.connect.lemgth);
-      events.close.splice(0,events.close.lemgth);
-      events.message.splice(0,events.message.lemgth);
-      events.error.splice(0,events.error.lemgth);
+    off: function (e, fn) {
+      if (typeof e + typeof fn === "stringfunction" && events[e]) {
+        const ix = events[e].indexOf(fn);
+        if (ix >= 0) events[e].splice(ix, 1);
+      } else {
+        if (typeof e === "string" && !events[e]) {
+          console.log(e, "is not a recognized event name");
+        }
+      }
+    },
+    destroy: function () {
+      window.removeEventListener("message", onMessages);
+
+      events.connect.splice(0, events.connect.lemgth);
+      events.close.splice(0, events.close.lemgth);
+      events.message.splice(0, events.message.lemgth);
+      events.error.splice(0, events.error.lemgth);
       delete events.message;
       delete events.close;
       delete events.connect;
       delete events.error;
-      events=null;
-      
+      events = null;
+
       if (iframe) {
         iframe.parentElement.removeChild(iframe);
         iframe = null;
       }
-    }
-    
+    },
   };
-
-  
 
   iframe.src = iframe_url;
-  
-  iframe.setAttribute('allow','clipboard-read; clipboard-write');
-  
+
+  iframe.setAttribute("allow", "clipboard-read; clipboard-write");
+
   iframe.onload = function () {
-    
-      const 
-      payload = { options:options };
+    const payload = { options: options };
 
-      let param_id = location.search.replace(/^\?/,'').replace(/\&.*/,'');
+    let param_id = location.search.replace(/^\?/, "").replace(/\&.*/, "");
 
-      window.peerInfo = window.peerInfo || function(x){
-        peerInfo.db = x;
+    window.peerInfo =
+      window.peerInfo ||
+      function (x) {
+        window.peerInfo.db = x;
       };
 
-      window.peerPostMessage = function(data){
-      
-        const event = new MessageEvent("message", {
-          data: data,
-        });
+    window.peerPostMessage = function (data) {
+      const event = new MessageEvent("message", {
+        data: data,
+      });
 
-        if (data.connected && data.connected.peer_id && data.connected.own_id) {
-          self.peer_id = data.connected.peer_id;
-          self.own_id  = data.connected.own_id;
-        }
+      if (data.connected && data.connected.peer_id && data.connected.own_id) {
+        self.peer_id = data.connected.peer_id;
+        self.own_id = data.connected.own_id;
+      }
 
-        window.dispatchEvent(event);
-      };
-      
-      if (param_id && param_id.length===24) {
-        
-        payload.own_id=param_id.substr(0,12);
-        payload.peer_id=param_id.substr(12);
-        self.peer_id = payload.peer_id;
-        self.own_id  = payload.own_id;
+      window.dispatchEvent(event);
+    };
 
-        //setTimeout(location.replace.bind(location),250,payload.options.target_href);
-    
-      } 
-      iframe.contentWindow.postMessage(payload,target_origin);  
-     
+    if (param_id && param_id.length === 24) {
+      payload.own_id = param_id.substr(0, 12);
+      payload.peer_id = param_id.substr(12);
+      self.peer_id = payload.peer_id;
+      self.own_id = payload.own_id;
+
+      //setTimeout(location.replace.bind(location),250,payload.options.target_href);
+    }
+    iframe.contentWindow.postMessage(payload, target_origin);
   };
-  
+
   document.body.appendChild(iframe);
-       
-  window.addEventListener('message',onMessages);
 
-  function onMessages(event){
+  window.addEventListener("message", onMessages);
 
+  function onMessages(event) {
     if (event.data.message) {
-        events.message.forEach(function(fn){
-          fn(event.data.message);
-        });
+      events.message.forEach(function (fn) {
+        fn(event.data.message);
+      });
     } else {
-        if (event.data.connected) {
-          //iframe.style.display="none";
-          events.connect.forEach(function(fn){
-            fn(event.data.connected);
+      if (event.data.connected) {
+        //iframe.style.display="none";
+        events.connect.forEach(function (fn) {
+          fn(event.data.connected);
+        });
+      } else {
+        if (event.data.disconnected) {
+          //iframe.style.display="block";
+          events.close.forEach(function (fn) {
+            fn(event.data.disconnected);
           });
         } else {
-          if (event.data.disconnected) {
-            //iframe.style.display="block";              
-            events.close.forEach(function(fn){
-              fn(event.data.disconnected);
+          if (event.data.error) {
+            //iframe.style.display="block";
+            events.error.forEach(function (fn) {
+              fn(event.data.error);
             });
-          } else {
-            if (event.data.error) {
-              //iframe.style.display="block";              
-              events.error.forEach(function(fn){
-                fn(event.data.error);
-              });
-            }
           }
         }
+      }
     }
-   
-}
-  
+  }
+
   function sendToPeer(msg) {
-      iframe.contentWindow.postMessage({send:msg},target_origin);     
+    iframe.contentWindow.postMessage({ send: msg }, target_origin);
   }
-  
+
   function setPeerId(id) {
-      iframe.contentWindow.postMessage({setPeerId:id},target_origin);      
+    iframe.contentWindow.postMessage({ setPeerId: id }, target_origin);
   }
-    
-  function setTargetHref (href) {
-      iframe.contentWindow.postMessage({target_href:href},target_origin);      
+
+  function setTargetHref(href) {
+    iframe.contentWindow.postMessage({ target_href: href }, target_origin);
   }
-  
 
   return self;
-  
 }
 
+function evenSimplerWSPeer({ own_id, peer_id }) {
+  const connection = new WebSocket(
+    location.origin.replace(/^https\:\/\//, "wss://")
+  );
 
+  const fifo = [],
+    events = {
+      data: [pendingData],
+    };
 
-evenSimplerPeer.inventId = 
-function inventId() {
-  
+  let peer;
+
+  let peerok = false,
+    connok = false;
+
+  connection.onopen = function () {
+    connok = true;
+  };
+
+  connection.onclose = function () {
+    connok = false;
+  };
+
+  connection.onerror = function (error) {
+    connok = false;
+  };
+
+  connection.onmessage = onConnectionMessage;
+
+  return {
+    on: onPeerEvent,
+    send: sendPeerData,
+  };
+
+  function onConnectionMessage(message) {
+    const msg = JSON.parse(message.data);
+
+    if (msg.data) {
+      // this is a message from the remote peer
+      // intended to be delivered locally
+      // (it was transported over the websocket connection)
+      events.data.forEach(function (fn) {
+        fn(msg.data);
+      });
+    }
+
+    if (msg.webrtc) {
+      const originalMessageData = message.data;
+      // this is a webrtc channel setup request
+      // we use SimplePeer for this
+      const { initator, trickle, objectMode, payload } = msg.webrtc;
+      // validate the message by checking for 4 specific members
+      if (
+        typeof initiator +
+          typeof trickle +
+          typeof objectMode +
+          typeof payload ===
+        "booleanbooleanbooleanobject"
+      ) {
+        // remove the payload member as that's not part of the SimplePeer options args
+        delete msg.webrtc.payload;
+        // instantiate the SimplePeer object
+        if (peer) peer.destroy();
+        peer = new SimplePeer(msg.webrtc);
+        peer.on("signal", function (signal) {
+          // when we get a signal immediately relay it over the websocket to the other side
+          connection.send(JSON.stringify({ signal: signal }));
+        });
+        peer.on("connect", function () {
+          // once connected, we can start forwarding incoming data
+          peer.on("data", function (data) {
+            const msg = JSON.parse(data);
+            events.data.forEach(function (fn) {
+              fn(msg);
+            });
+          });
+          peer.on("close", function () {
+            peerok = false;
+            if (connok) {
+              connection.send(
+                JSON.stringify({
+                  webrtc: {
+                    initiator: !msg.webrtc.initiator,
+                    tickle: msg.webrtc.trickle,
+                    objectMode: msg.webrtc.objectMode,
+                  },
+                })
+              );
+              setTimeout(
+                connection.onmessage,
+                { data: originalMessageData },
+                100
+              );
+            }
+          });
+          peerok = true;
+        });
+        // send the initial payload
+        events.data.forEach(function (fn) {
+          fn(payload);
+        });
+        peer.on("error", function () {
+          peerok = false;
+        });
+      }
+    }
+
+    if (msg.signal) {
+      // this is an incoming signal from the remote peer object
+      if (peer) {
+        peer.signal(msg.signal);
+      }
+    }
+  }
+
+  function onPeerEvent(e, fn) {
+    if (e === "data") {
+      const ix = events.data.indexOf(pendingData);
+      if (ix >= 0) events.data.splice(ix, 1);
+      fifo.splice(0, fifo.length).forEach(fn);
+    }
+
+    if (events[e]) {
+      events[e].push(fn);
+    } else {
+      events[e] = [fn];
+    }
+  }
+
+  function sendPeerData(data) {
+    if (peerok) {
+      // we can send the data over the webrtc connection
+      return peer.send(JSON.stringify(data));
+    }
+    if (connok) {
+      // we are forced to fallback to sending the message over the websocket
+      return connection.send(
+        JSON.stringify({
+          data: data,
+        })
+      );
+    }
+  }
+
+  function pendingData(data) {
+    fifo.push(data);
+  }
+}
+
+evenSimplerPeer.inventId = function inventId() {
   let id = randomId();
 
   let result = id + evenSimplerPeer.checkDigit(id);
@@ -289,14 +421,12 @@ function inventId() {
       let r = Math.floor(Math.random() * 1000000);
       return ("0000" + r.toString()).slice(0 - n);
     };
-  
+
     return `${R(3)}-${R(4)}-${R(4)}`;
-  
   }
 };
 
-evenSimplerPeer.cleanupId =
-function cleanupId(id) {
+evenSimplerPeer.cleanupId = function cleanupId(id) {
   return id
     .split("")
     .filter(function (n) {
@@ -305,9 +435,9 @@ function cleanupId(id) {
     .join("");
 };
 
-evenSimplerPeer.checkDigit =
-function checkDigit(id) {
-  let digits = evenSimplerPeer.cleanupId(id)
+evenSimplerPeer.checkDigit = function checkDigit(id) {
+  let digits = evenSimplerPeer
+    .cleanupId(id)
     .split("")
     .map(function (n) {
       return Number(n);
@@ -321,13 +451,11 @@ function checkDigit(id) {
   return check.toString();
 };
 
-evenSimplerPeer.validateId =
-function validateId(id) {
+evenSimplerPeer.validateId = function validateId(id) {
   if (typeof id === "string" && id.length >= 3 + 4 + 5) {
     id = id.trim();
     let check = evenSimplerPeer.checkDigit(id.substring(0, id.length - 1));
     return id.endsWith(check);
   }
   return false;
-}
-
+};

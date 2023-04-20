@@ -2,15 +2,20 @@ var numkeys  = {};
 var numkey_poll = {};
 
 const maxAge = 1000*60*60*30; 
+//const ws = require('ws');
 
 const crypto = require('crypto');
 const { execSync } = require('child_process');
+
+const WebSocketServer = require('websocket').server;
+
 
 
 //
 // This defines the routes that our API is going to use.
 //
 var routes = function (app) {
+  
   //
   // This route processes GET requests, by using the `get()` method in express, and we're looking for them on
   // the root of the application (in this case that's https://rest-api.glitch.me/), since we've
@@ -33,6 +38,7 @@ var routes = function (app) {
   app.get ("/api",function(req,res){
       res.sendFile(__dirname + "/static/even-simpler-api.html");
   });
+  
   app.post ("/api",function(req,res){
         
     numKeyCleanup ();
@@ -131,6 +137,9 @@ var routes = function (app) {
   });
   
   */
+
+  
+ 
   
   function numKeyCleanup () {
     if (numKeyCleanup.timeout) {
@@ -157,8 +166,9 @@ var routes = function (app) {
     numKeyCleanup.timeout = setTimeout(numKeyCleanup,60000);
     
   }
+  
 
-
+  
 };
 
 module.exports = routes;
