@@ -28,6 +28,7 @@ SOFTWARE.
 
       let peer,
           tickCount =0,
+          peerViaWsBtn =  document.querySelector("#peerViaWsBtn"),
           logger = document.querySelector("pre"),
           json = document.querySelector("textarea"),
           btn = document.querySelector("#sendBtn"),
@@ -81,6 +82,7 @@ SOFTWARE.
         };
 
 
+ 
         function checkWs () {
           
           const info = getWebRTCInfo();
@@ -181,3 +183,40 @@ SOFTWARE.
           return ajax;
         };
    }
+ 
+        peerViaWsBtn.onclick = function () {
+          const token = location.search;
+          if (token && token.length === 25 && token.charAt(0)==='?') {
+             const own_id = token.substr(1,12);
+             const peer_id = token.substr(13,12);
+             if (evenSimplerPeer.validateId(own_id)) {
+                if (evenSimplerPeer.validateId(peer_id)) {
+                   if (peer) peer.destroy();
+
+                   peer = evenSimplerWSPeer({own_id, peer_id });
+                   peer.on('data',function(msg){
+                    logger.innerHTML += "in: "+JSON.stringify(msg,undefined,4)+"\n";
+                   });
+
+                   btn.onclick = function(){
+                    try {
+                      let msg = JSON.parse(json.value);
+                      peer.send(msg);
+                      json.value = JSON.stringify(msg,undefined,4);
+                    } catch (e) {
+                      
+                    }
+                 };
+         
+
+                }
+             }
+          }
+          
+        }
+      };
+
+
+
+      
+ 
