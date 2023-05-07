@@ -24,15 +24,21 @@ SOFTWARE.
 
 */
 
-/* global evenSimplerPeer */   
+/* global evenSimplerPeer,evenSimplerWSPeer */   
 
       let peer,
+          tickCount =0,
           logger = document.querySelector("pre"),
           json = document.querySelector("textarea"),
-          btn = document.querySelector("button");
+          btn = document.querySelector("#sendBtn"),
+          rest_test = document.querySelector("#rest_test");
+          
       
       //document.body.appendChild(logger);
       document.body.onload=function(){
+        
+        if (checkWs()) return;
+        
         peer = evenSimplerPeer();
         
         let peerSend = function (msg) {
@@ -53,13 +59,15 @@ SOFTWARE.
         peer.on('close',function(){
           document.title = "disconnected";
           document.querySelector("iframe").style.display = "block";
+          logger.innerHTML += "closed\n";
         });
         
          
         peer.on('error',function(err){
           document.title = "error";
           document.querySelector("iframe").style.display = "block";
-          log(err);
+          
+          logger.innerHTML += "error: "+JSON.stringify(err,undefined,4)+"\n";
         });
         
         btn.onclick = function(){
@@ -71,5 +79,105 @@ SOFTWARE.
              
            }
         };
+
+
+        function checkWs () {
+          
+          const info = getWebRTCInfo();
+          if (info) {
+             if (peer) peer.destroy();
+            
+             const custXhr = customXhr('x-rest-token',info.peer_id+info.own_id);
+
+             peer = evenSimplerWSPeer(info);
+
+             peer.on('data',function(msg,source){
+               logger.innerHTML += source+": "+JSON.stringify(msg,undefined,4)+"\n";
+             });
+            
+             peer.on('rest',function(msg){
+               logger.innerHTML = "rest : "+JSON.stringify(msg,undefined,4)+"\n";
+             });
+            
+            
+
+             btn.onclick = function(){
+              try {
+                let msg = JSON.parse(json.value);
+                logger.innerHTML += "sending: "+JSON.stringify(msg,undefined,4)+"\n";
+                peer.send(msg);
+                json.value = JSON.stringify(msg,undefined,4);
+              } catch (e) {
+
+              }
+           };
+            
+             setInterval(function(){
+               
+               if (peer) {
+                 peer.send({
+
+                     random:Math.random(),
+                     when:Date.now(),
+                     tickCount:tickCount++
+
+                   });
+                 }
+               
+               
+             },5000);
+            
+             rest_test.onkeyup=function(e){
+                if (e.key==="Enter") {
+                   const xhr = custXhr();
+                   xhr.open('GET',location.origin+'/wss_rest.api?'+rest_test.value,false);
+                  
+                   xhr.send();
+                  rest_test.value="";
+                }
+             };
+
+             return true;
+          }
+          
+          return false;
+        }
+        
+        
+        function getWebRTCInfo() {
+            let token = location.search,{validateId} = evenSimplerPeer;
+            if (token && token.startsWith('?webrtc=')  ) {
+               token=token.split('=')[1];
+               if (token.length===24) {
+                 const own_id = token.substr(0,12);
+                 const peer_id = token.substr(12,12);
+                 if (validateId(own_id) && validateId(peer_id)) {
+                     return  {own_id, peer_id } ;
+                 }
+              }
+            }
+          
+          return null;
+        }
       };
-      
+
+   function customXhr(hdr,value) {
+        return function () { 
+          var ajax = new XMLHttpRequest() ;
+          const realOpen = ajax.open;
+
+          // steal the 'open' function, since the request has o be open
+          // in order to send headers
+          ajax.open = function(method, url){
+              realOpen.apply(ajax, arguments);
+
+              // note: here, yu have access to the method (GET, POST, etc.), as well
+              // as the url for the request... so 'if' to your content
+
+              // automatically send the header once open
+              ajax.setRequestHeader(hdr,value);
+          };
+
+          return ajax;
+        };
+   }
