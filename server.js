@@ -26,9 +26,10 @@ SOFTWARE.
 var express = require("express");
 var bodyParser = require("body-parser");
 var app = express();
+
+var serveFavicon = require('serve-favicon');
  
 app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(express.static('static')); 
  
@@ -45,3 +46,5 @@ var server = app.listen(process.env.PORT||3000, function () {
 });
 
 startWss(server,app);
+
+module.exports = { server, app, express, routes };

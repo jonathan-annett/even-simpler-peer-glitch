@@ -263,7 +263,8 @@ function evenSimplerPeer(headless) {
 
 function evenSimplerWSPeer({ own_id, peer_id }) {
   
-  const wss_url = `wss://${even_simpler_domain}/`;
+  const protocol = location.protocol.replace(/^http/, "ws");
+  const wss_url = `${protocol}//${even_simpler_domain}/`;
   const connection_firstmessage = JSON.stringify({own_id, peer_id});
   
   let connection = new WebSocket( wss_url );
