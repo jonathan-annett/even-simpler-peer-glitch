@@ -30,13 +30,13 @@ var app = express();
 app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(express.static('static'));
+app.use(express.static('static')); 
  
 var routes = require("./routes.js")(app);
 
 var startWss = require("./startWss.js");
 
-process.github_rev = !!process.env.PARSE_GIT && require('child_process').execSync('git rev-parse HEAD').toString().trim()||'';
+process.github_rev = process.env.PARSE_GIT && require('child_process').execSync('git rev-parse HEAD').toString().trim() || '';
 
 console.log ("Github revision hash: "+process.github_rev);
 
@@ -44,4 +44,4 @@ var server = app.listen(process.env.PORT||3000, function () {
   console.log("Listening on port %s", server.address().port);
 });
 
-startWss(server);
+startWss(server,app);

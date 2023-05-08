@@ -91,6 +91,9 @@ SOFTWARE.
 
 */
 
+const even_simpler_domain = "even-simpler-peer.glitch.me";
+
+
 function evenSimplerPeer(headless) {
   let options =
     typeof headless === "object" ? headless : { headless: !!headless };
@@ -109,11 +112,10 @@ function evenSimplerPeer(headless) {
     };
   }
 
-  const domain = "even-simpler-peer.glitch.me";
   const iframe_url = options.headless
-    ? `https://${domain}/even-simpler-api-headless.html`
-    : `https://${domain}/api`;
-  const target_origin = `https://${domain}/`;
+    ? `https://${even_simpler_domain}/even-simpler-api-headless.html`
+    : `https://${even_simpler_domain}/api`;
+  const target_origin = `https://${even_simpler_domain}/`;
 
   let events = {
     connect: [],
@@ -260,56 +262,77 @@ function evenSimplerPeer(headless) {
 }
 
 function evenSimplerWSPeer({ own_id, peer_id }) {
-  const connection = new WebSocket(
-    location.origin.replace(/^https\:\/\//, "wss://")
-  );
+  
+  const wss_url = `wss://${even_simpler_domain}/`;
+  const connection_firstmessage = JSON.stringify({own_id, peer_id});
+  
+  let connection = new WebSocket( wss_url );
+  let first_payload = true;
+    
 
-  const fifo = [],
+  let fifo = [],
     events = {
       data: [pendingData],
+      rest: []
     };
 
   let peer;
 
   let peerok = false,
-    connok = false;
+      connok = false;
 
-  connection.onopen = function () {
-    connok = true;
-  };
-
-  connection.onclose = function () {
-    connok = false;
-  };
-
-  connection.onerror = function (error) {
-    connok = false;
-  };
-
-  connection.onmessage = onConnectionMessage;
-
+  connection.onopen = connection_onopen;
+  connection.onerror = connection_oncloseerorr;
+    
   return {
-    on: onPeerEvent,
-    send: sendPeerData,
+    on:       onPeerEvent,
+    send:     sendPeerData,
+    destroy : destroyPeer
   };
 
-  function onConnectionMessage(message) {
+  
+  
+  function  connection_onopen () {
+    connection.onopen=null;
+    connection.onclose = connection_oncloseerorr;
+    connection.onmessage = connection_onmessage;
+
+    connok = true;
+    connection.send(connection_firstmessage);
+  }
+
+  
+  function connection_oncloseerorr() {
+    connok = false;
+    connection.onclose=null;
+    connection.onerror=null;
+    connection.onmessage=null;
+   
+    connection = new WebSocket( wss_url );
+    connection.onopen = connection_onopen;
+    connection.onerror = connection_oncloseerorr;
+  }
+
+
+
+  function connection_onmessage(message) {
     const msg = JSON.parse(message.data);
+    console.log({connection_onmessage:msg})
 
     if (msg.data) {
       // this is a message from the remote peer
       // intended to be delivered locally
       // (it was transported over the websocket connection)
       events.data.forEach(function (fn) {
-        fn(msg.data);
+        fn(msg.data,"ws");
       });
     }
 
     if (msg.webrtc) {
-      const originalMessageData = message.data;
+      
       // this is a webrtc channel setup request
       // we use SimplePeer for this
-      const { initator, trickle, objectMode, payload } = msg.webrtc;
+      const { initiator, trickle, objectMode, payload } = msg.webrtc;
       // validate the message by checking for 4 specific members
       if (
         typeof initiator +
@@ -325,6 +348,7 @@ function evenSimplerWSPeer({ own_id, peer_id }) {
         peer = new SimplePeer(msg.webrtc);
         peer.on("signal", function (signal) {
           // when we get a signal immediately relay it over the websocket to the other side
+          console.log("relaying signal to peer",signal);
           connection.send(JSON.stringify({ signal: signal }));
         });
         peer.on("connect", function () {
@@ -332,34 +356,26 @@ function evenSimplerWSPeer({ own_id, peer_id }) {
           peer.on("data", function (data) {
             const msg = JSON.parse(data);
             events.data.forEach(function (fn) {
-              fn(msg);
+              fn(msg,"webrtc");
             });
           });
           peer.on("close", function () {
             peerok = false;
             if (connok) {
-              connection.send(
-                JSON.stringify({
-                  webrtc: {
-                    initiator: !msg.webrtc.initiator,
-                    tickle: msg.webrtc.trickle,
-                    objectMode: msg.webrtc.objectMode,
-                  },
-                })
-              );
-              setTimeout(
-                connection.onmessage,
-                { data: originalMessageData },
-                100
-              );
+               connok=false;
+               connection.close();
             }
           });
           peerok = true;
         });
-        // send the initial payload
-        events.data.forEach(function (fn) {
-          fn(payload);
-        });
+        if (first_payload) {
+          // send the initial payload
+          events.data.forEach(function (fn) {
+            fn(payload,"init");
+          });
+          first_payload=false;
+        }
+        
         peer.on("error", function () {
           peerok = false;
         });
@@ -371,6 +387,13 @@ function evenSimplerWSPeer({ own_id, peer_id }) {
       if (peer) {
         peer.signal(msg.signal);
       }
+    }
+    
+    if (msg.rest) {
+      console.log('rest:',msg.rest);
+      events.rest.forEach(function(fn){
+         fn(msg.rest);
+      });
     }
   }
 
@@ -406,6 +429,27 @@ function evenSimplerWSPeer({ own_id, peer_id }) {
   function pendingData(data) {
     fifo.push(data);
   }
+  
+  function destroyPeer() {
+      peerok=false;
+      connok=false
+      if (peer) {
+        peer.destroy();
+        peer=null;
+      }     
+    
+     if (events) {
+       events.data.splice(0,events.data.lemgth);
+       delete events.data;
+       events = null;
+     }
+    
+     if (fifo) {
+       fifo.splice(0,fifo.length);
+       fifo = null;
+     }
+  }
+  
 }
 
 evenSimplerPeer.inventId = function inventId() {
